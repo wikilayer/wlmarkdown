@@ -47,7 +47,7 @@ func Recognise(source []byte) []Found {
 func plainText(from ast.Node, source []byte) string {
 	var written strings.Builder
 	walk(from, func(n ast.Node) ast.WalkStatus {
-		if n.Type() == ast.TypeBlock && written.Len() > 0 {
+		if n.Type() == ast.TypeBlock && needsGap(written.String()) {
 			written.WriteString(" ")
 		}
 		if leaf, ok := n.(*ast.Text); ok {
@@ -59,4 +59,8 @@ func plainText(from ast.Node, source []byte) string {
 		return ast.WalkContinue
 	})
 	return strings.TrimSpace(written.String())
+}
+
+func needsGap(written string) bool {
+	return written != "" && !strings.HasSuffix(written, " ")
 }

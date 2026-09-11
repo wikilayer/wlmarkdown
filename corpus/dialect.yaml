@@ -181,3 +181,27 @@ cases:
         lat: "44.8032201"
         lng: "20.4726824"
         caption: Krunska 72
+
+  - name: a place inside a callout stays a quote, and the callout keeps its words
+    markdown: |
+      > [!NOTE]
+      > Where to find us.
+      >
+      > > [!MAP]
+      > > 44.8032201, 20.4726824
+    found:
+      - kind: callout
+        class: note
+        text: Where to find us. [!MAP] 44.8032201, 20.4726824
+
+  - name: a callout inside a callout is one callout, not two
+    markdown: |
+      > [!NOTE]
+      > Outer.
+      >
+      > > [!TIP]
+      > > Inner.
+    found:
+      - kind: callout
+        class: note
+        text: Outer. [!TIP] Inner.

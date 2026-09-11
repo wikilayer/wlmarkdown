@@ -3,8 +3,8 @@
 The WikiLayer markdown dialect: ordinary CommonMark with tables, strikethrough and
 task lists, plus the constructs the dialect adds of its own.
 
-Today that is callouts. A blockquote whose first line is exactly a marker becomes a
-callout of that class:
+Today those are callouts and map embeds. A blockquote whose first line is exactly a
+marker becomes a callout of that class:
 
 ```markdown
 > [!WARNING]
@@ -21,6 +21,38 @@ callout of that class:
 
 Anything else — a marker sharing its line with words, a marker nobody declared, a
 quote without one — stays an ordinary quote.
+
+A `[!MAP]` marker followed by a line of two numbers becomes a map embed. Whatever
+follows the coordinates is its caption:
+
+```markdown
+> [!MAP]
+> 44.8032201, 20.4726824
+> Krunska 72, 11000 Beograd
+```
+
+Both numbers have to parse as numbers, or the quote stays a quote. They are handed
+on as the source wrote them, digit for digit, because rounding a coordinate moves
+the point.
+
+## Limitations
+
+A construct inside a callout is not recognised. A quote within a quote stays an
+ordinary quote, so a map inside a note is a quote as well. This is written into the
+corpus as a case of its own, rather than left to how the walk happens to be
+arranged.
+
+Markdown as a whole is split on this, along the line of what the syntax is for.
+GitHub, whose alert spelling this dialect borrows, states that "alerts cannot be
+nested within other elements". Obsidian, which builds a knowledge base out of them,
+says "you can nest callouts in multiple levels" and gives an example three deep.
+Material for MkDocs nests admonitions by indentation and describes them as allowing
+"the inclusion and nesting of arbitrary content".
+
+This dialect follows GitHub, because the choice is not a symmetric one. Refusing
+nesting stays reversible for as long as no page relies on it, while allowing it
+commits every port to the same recursion and cannot be taken back from pages
+already written.
 
 ## What this library does and does not do
 
