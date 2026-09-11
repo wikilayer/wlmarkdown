@@ -1,0 +1,97 @@
+cases:
+  - name: a callout of each kind is recognised by its marker
+    markdown: |
+      > [!NOTE]
+      > Read this first.
+    found:
+      - kind: callout
+        class: note
+        text: Read this first.
+
+  - name: a tip carries its own class
+    markdown: |
+      > [!TIP]
+      > Try the shorter form.
+    found:
+      - kind: callout
+        class: tip
+        text: Try the shorter form.
+
+  - name: an important callout carries its own class
+    markdown: |
+      > [!IMPORTANT]
+      > The wiki is the source.
+    found:
+      - kind: callout
+        class: important
+        text: The wiki is the source.
+
+  - name: a warning carries its own class
+    markdown: |
+      > [!WARNING]
+      > This cannot be undone.
+    found:
+      - kind: callout
+        class: warning
+        text: This cannot be undone.
+
+  - name: a caution carries its own class
+    markdown: |
+      > [!CAUTION]
+      > The key is public once it ships.
+    found:
+      - kind: callout
+        class: caution
+        text: The key is public once it ships.
+
+  - name: the marker line is not part of the callout body
+    markdown: |
+      > [!NOTE]
+      > Only this sentence.
+    found:
+      - kind: callout
+        class: note
+        text: Only this sentence.
+
+  - name: a marker the dialect does not know leaves an ordinary quote
+    markdown: |
+      > [!ASIDE]
+      > Nothing claims this one.
+    found: []
+
+  - name: a marker sharing its line with text is not a callout
+    markdown: |
+      > [!NOTE] and more
+      > The rest of the quote.
+    found: []
+
+  - name: a quote without any marker stays a quote
+    markdown: |
+      > Plain quoted words.
+    found: []
+
+  - name: a callout holds every paragraph of its quote
+    markdown: |
+      > [!WARNING]
+      > First line.
+      >
+      > Second paragraph.
+    found:
+      - kind: callout
+        class: warning
+        text: First line. Second paragraph.
+
+  - name: two callouts in one document are both recognised
+    markdown: |
+      > [!NOTE]
+      > The first.
+
+      > [!TIP]
+      > The second.
+    found:
+      - kind: callout
+        class: note
+        text: The first.
+      - kind: callout
+        class: tip
+        text: The second.
