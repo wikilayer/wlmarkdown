@@ -99,34 +99,34 @@ cases:
   - name: a place is a marker, a point and what follows as its caption
     markdown: |
       > [!MAP]
-      > 44.8032201, 20.4726824
-      > Krunska 72, 11000 Beograd
+      > 44.7866, 20.4489
+      > Belgrade, the city centre
     found:
       - kind: map
-        lat: "44.8032201"
-        lng: "20.4726824"
-        caption: Krunska 72, 11000 Beograd
+        lat: "44.7866"
+        lng: "20.4489"
+        caption: Belgrade, the city centre
 
   - name: a place needs no caption
     markdown: |
       > [!MAP]
-      > 44.8032201, 20.4726824
+      > 44.7866, 20.4489
     found:
       - kind: map
-        lat: "44.8032201"
-        lng: "20.4726824"
+        lat: "44.7866"
+        lng: "20.4489"
 
   - name: a caption spread over lines is read as one
     markdown: |
       > [!MAP]
-      > 44.8032201, 20.4726824
-      > Krunska 72
-      > 11000 Beograd
+      > 44.7866, 20.4489
+      > Belgrade
+      > the city centre
     found:
       - kind: map
-        lat: "44.8032201"
-        lng: "20.4726824"
-        caption: Krunska 72 11000 Beograd
+        lat: "44.7866"
+        lng: "20.4489"
+        caption: Belgrade the city centre
 
   - name: a point south and west of zero is still a point
     markdown: |
@@ -151,7 +151,7 @@ cases:
   - name: a map marker with no point under it stays a quote
     markdown: |
       > [!MAP]
-      > Krunska 72, Beograd
+      > Belgrade, the city centre
     found: []
 
   - name: a map marker alone stays a quote
@@ -162,7 +162,7 @@ cases:
   - name: a point with no comma stays a quote
     markdown: |
       > [!MAP]
-      > 44.8032201 20.4726824
+      > 44.7866 20.4489
     found: []
 
   - name: a callout and a place in one document are both recognised
@@ -171,16 +171,16 @@ cases:
       > Where to find us.
 
       > [!MAP]
-      > 44.8032201, 20.4726824
-      > Krunska 72
+      > 44.7866, 20.4489
+      > Belgrade
     found:
       - kind: callout
         class: note
         text: Where to find us.
       - kind: map
-        lat: "44.8032201"
-        lng: "20.4726824"
-        caption: Krunska 72
+        lat: "44.7866"
+        lng: "20.4489"
+        caption: Belgrade
 
   - name: a place inside a callout stays a quote, and the callout keeps its words
     markdown: |
@@ -188,11 +188,11 @@ cases:
       > Where to find us.
       >
       > > [!MAP]
-      > > 44.8032201, 20.4726824
+      > > 44.7866, 20.4489
     found:
       - kind: callout
         class: note
-        text: Where to find us. [!MAP] 44.8032201, 20.4726824
+        text: Where to find us. [!MAP] 44.7866, 20.4489
 
   - name: a marker in lower case stays a quote
     markdown: |

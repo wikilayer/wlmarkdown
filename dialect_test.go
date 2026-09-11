@@ -6,6 +6,7 @@ func TestADialectRecognisesOnlyTheMarkersItCarries(t *testing.T) {
 	own := Dialect{
 		calloutClassByMarker: map[string]string{"[!ASIDE]": "aside"},
 		mapMarker:            "[!PLACE]",
+		refSchemes:           []string{"page", "block"},
 	}
 
 	found := own.Recognise([]byte("> [!ASIDE]\n> Spoken aside.\n"))
@@ -18,7 +19,7 @@ func TestADialectRecognisesOnlyTheMarkersItCarries(t *testing.T) {
 		t.Errorf("a marker this dialect never declared was recognised: %+v", found)
 	}
 
-	found = own.Recognise([]byte("> [!PLACE]\n> 44.8032201, 20.4726824\n"))
+	found = own.Recognise([]byte("> [!PLACE]\n> 44.7866, 20.4489\n"))
 	if len(found) != 1 || found[0].Kind != "map" {
 		t.Errorf("the place marker this dialect declares went unrecognised: %+v", found)
 	}

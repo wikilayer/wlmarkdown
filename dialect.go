@@ -3,6 +3,7 @@ package wlmarkdown
 import (
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/parser"
 )
 
 type Dialect struct {
@@ -25,12 +26,14 @@ func New() Dialect {
 	}
 }
 
-func (d Dialect) Markdown() goldmark.Markdown {
-	return goldmark.New(goldmark.WithExtensions(
-		extension.Table,
-		extension.Strikethrough,
-		extension.TaskList,
+func (d Dialect) Extensions() []goldmark.Extender {
+	return []goldmark.Extender{
+		extension.GFM,
 		&mapEmbedExtension{marker: d.mapMarker},
 		&calloutExtension{classByMarker: d.calloutClassByMarker},
-	))
+	}
+}
+
+func (d Dialect) Parser() parser.Parser {
+	return goldmark.New(goldmark.WithExtensions(d.Extensions()...)).Parser()
 }

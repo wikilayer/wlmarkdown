@@ -1,7 +1,8 @@
 # wlmarkdown
 
-The WikiLayer markdown dialect: ordinary CommonMark with tables, strikethrough and
-task lists, plus the constructs the dialect adds of its own.
+The WikiLayer markdown dialect: GitHub-flavoured markdown, meaning CommonMark plus
+tables, strikethrough, task lists and bare-URL linking, and then the constructs the
+dialect adds of its own.
 
 Today those are callouts and map embeds. A blockquote whose first line is exactly a
 marker becomes a callout of that class:
@@ -27,8 +28,8 @@ follows the coordinates is its caption:
 
 ```markdown
 > [!MAP]
-> 44.8032201, 20.4726824
-> Krunska 72, 11000 Beograd
+> 44.7866, 20.4489
+> Belgrade, the city centre
 ```
 
 Both numbers have to parse as numbers, or the quote stays a quote. They are handed
@@ -51,8 +52,7 @@ there at all and what URL it turns into. None of those is a parser's to answer.
 A quote within a quote is not looked into. The inner one stays an ordinary quote, so
 a map inside a note, and a note inside a note, are quotes as well. Inline
 constructs are a different matter: a link is found wherever it sits, a callout
-included. Both are written into the corpus as cases of their own, rather than left
-to how the walk happens to be arranged.
+included. Both are corpus cases, so neither can change without a case going red.
 
 An autolink is not reported either. `<https://example.com/page>` stays whatever
 CommonMark makes of it, and only a link written with brackets and a destination
@@ -72,8 +72,9 @@ already written.
 
 ## What this library does and does not do
 
-It **recognises**. `Dialect()` returns a goldmark that parses the dialect, and the
-callout node carries the one thing the source says: its class.
+It **recognises**. `New().Extensions()` hands over the goldmark extenders that parse
+the dialect, and each node carries the one thing the source says: a callout its
+class, a map its point.
 
 It does not render, translate or resolve. A title for the callout, an icon, a
 colour, a link target looked up in a store — all of that belongs to whoever holds
@@ -84,18 +85,38 @@ the dialect this one rather than another, so `New()` is the only dialect there i
 
 ## Use
 
-```go
-source := []byte("> [!TIP]\n> Try the shorter form.\n")
+`New().Recognise(source)` returns the flat list of dialect constructs found, in
+document order:
 
-var out bytes.Buffer
-if err := wlmarkdown.New().Markdown().Convert(source, &out); err != nil {
-    return err
-}
+```go
+found := wlmarkdown.New().Recognise([]byte("> [!TIP]\n> Try the shorter form.\n"))
 ```
 
-`New().Recognise(source)` returns the flat list of dialect constructs found, in
-document order. It is what the corpus is written against, so every port of this
-library answers the same questions with the same words.
+That list is what the corpus is written against, so every port of this library
+answers the same questions with the same words.
+
+To render, compose a goldmark of your own from the extenders and add a renderer for
+each of the dialect's node kinds, `KindCallout` and `KindMapEmbed`:
+
+```go
+md := goldmark.New(
+    goldmark.WithExtensions(wlmarkdown.New().Extensions()...),
+    goldmark.WithRendererOptions(renderer.WithNodeRenderers(
+        util.Prioritized(yourCalloutRenderer{}, 500),
+        util.Prioritized(yourMapRenderer{}, 500),
+    )),
+)
+```
+
+Both renderers are yours to write, and a goldmark without them cannot render a
+document that carries either node.
+
+## Running it
+
+```sh
+make test    # the corpus, plus the wiring test
+make lint    # go vet, gofmt, staticcheck, commentcensor
+```
 
 ## The corpus
 

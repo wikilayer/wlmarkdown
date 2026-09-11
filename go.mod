@@ -1,6 +1,6 @@
 module github.com/wikilayer/wlmarkdown
 
-go 1.27.1
+go 1.27
 
 require (
 	github.com/yuin/goldmark v1.8.5

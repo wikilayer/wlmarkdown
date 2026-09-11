@@ -20,7 +20,7 @@ type Found struct {
 
 func (d Dialect) Recognise(source []byte) []Found {
 	reader := text.NewReader(source)
-	doc := d.Markdown().Parser().Parse(reader)
+	doc := d.Parser().Parse(reader)
 
 	found := []Found{}
 	walk(doc, func(n ast.Node) ast.WalkStatus {

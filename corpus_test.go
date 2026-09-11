@@ -1,6 +1,7 @@
 package wlmarkdown_test
 
 import (
+	"bytes"
 	"os"
 	"reflect"
 	"testing"
@@ -24,9 +25,12 @@ func TestTheDialectRecognisesWhatTheCorpusSays(t *testing.T) {
 		t.Fatalf("the corpus every port answers to is unreadable: %v", err)
 	}
 
+	reader := yaml.NewDecoder(bytes.NewReader(read))
+	reader.KnownFields(true)
+
 	var held corpus
-	if err := yaml.Unmarshal(read, &held); err != nil {
-		t.Fatalf("the corpus does not parse: %v", err)
+	if err := reader.Decode(&held); err != nil {
+		t.Fatalf("the corpus does not parse, or asks for something no port would see: %v", err)
 	}
 	if len(held.Cases) == 0 {
 		t.Fatal("the corpus holds no cases, so this test cannot fail")
@@ -34,6 +38,9 @@ func TestTheDialectRecognisesWhatTheCorpusSays(t *testing.T) {
 
 	for _, one := range held.Cases {
 		t.Run(one.Name, func(t *testing.T) {
+			if one.Markdown == "" {
+				t.Fatal("the case carries no markdown, so it passes on an empty document")
+			}
 			got := wlmarkdown.New().Recognise([]byte(one.Markdown))
 			want := one.Found
 			if want == nil {
