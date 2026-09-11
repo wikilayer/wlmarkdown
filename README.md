@@ -42,8 +42,9 @@ Read [the libraries page](page:42685) first.
 ```
 
 The dialect reads the scheme and hands on whatever follows it, character for
-character. Whether `42685` names anything, whether it is even a number, and what
-URL it turns into are questions a store answers, not a parser.
+character. A tail is as often a name as a number, `page:home` beside `page:42685`,
+and which names exist is a question a store answers, along with whether anything is
+there at all and what URL it turns into. None of those is a parser's to answer.
 
 ## Limitations
 

@@ -194,6 +194,39 @@ cases:
         class: note
         text: Where to find us. [!MAP] 44.8032201, 20.4726824
 
+  - name: a marker in lower case stays a quote
+    markdown: |
+      > [!note]
+      > Body.
+    found: []
+
+  - name: a body carrying emphasis keeps its words and nothing else
+    markdown: |
+      > [!NOTE]
+      > Body with **bold** word.
+    found:
+      - kind: callout
+        class: note
+        text: Body with bold word.
+
+  - name: a body carrying a code span keeps its words
+    markdown: |
+      > [!TIP]
+      > Body with `code` span.
+    found:
+      - kind: callout
+        class: tip
+        text: Body with code span.
+
+  - name: an image in a body is not a link
+    markdown: |
+      > [!WARNING]
+      > Body with ![alt](https://example.invalid/img.png) image.
+    found:
+      - kind: callout
+        class: warning
+        text: Body with alt image.
+
   - name: a page ref names its scheme and hands on the rest
     markdown: |
       Read [the libraries page](page:42685) first.
@@ -211,6 +244,19 @@ cases:
         target: block
         ref: "50386"
         text: principle
+
+  - name: a tail naming something rather than numbering it is handed on the same way
+    markdown: |
+      Start at [the front page](page:home), not at the [glossary](page:glossary).
+    found:
+      - kind: link
+        target: page
+        ref: home
+        text: the front page
+      - kind: link
+        target: page
+        ref: glossary
+        text: glossary
 
   - name: a link to anywhere else is a url
     markdown: |
