@@ -23,23 +23,19 @@ func (n *Callout) Dump(source []byte, level int) {
 	ast.DumpHelper(n, source, level, map[string]string{"Class": n.Class}, nil)
 }
 
-var calloutClassByMarker = map[string]string{
-	"[!NOTE]":      "note",
-	"[!TIP]":       "tip",
-	"[!IMPORTANT]": "important",
-	"[!WARNING]":   "warning",
-	"[!CAUTION]":   "caution",
+type calloutExtension struct {
+	classByMarker map[string]string
 }
-
-type calloutExtension struct{}
 
 func (e *calloutExtension) Extend(md goldmark.Markdown) {
 	md.Parser().AddOptions(parser.WithASTTransformers(
-		util.Prioritized(&calloutTransformer{}, 100),
+		util.Prioritized(&calloutTransformer{classByMarker: e.classByMarker}, 100),
 	))
 }
 
-type calloutTransformer struct{}
+type calloutTransformer struct {
+	classByMarker map[string]string
+}
 
 type calloutTarget struct {
 	quote        *ast.Blockquote
@@ -50,7 +46,7 @@ type calloutTarget struct {
 
 func (t *calloutTransformer) Transform(doc *ast.Document, reader text.Reader, _ parser.Context) {
 	source := reader.Source()
-	targets := calloutTargets(doc, source)
+	targets := calloutTargets(doc, source, t.classByMarker)
 	for _, found := range targets {
 		callout := &Callout{Class: found.class}
 		stripMarker(found.paragraph, found.firstLineEnd)
@@ -67,7 +63,7 @@ func (t *calloutTransformer) Transform(doc *ast.Document, reader text.Reader, _ 
 	}
 }
 
-func calloutTargets(doc *ast.Document, source []byte) []calloutTarget {
+func calloutTargets(doc *ast.Document, source []byte, classByMarker map[string]string) []calloutTarget {
 	var targets []calloutTarget
 	walk(doc, func(n ast.Node) ast.WalkStatus {
 		quote, ok := n.(*ast.Blockquote)
@@ -80,7 +76,7 @@ func calloutTargets(doc *ast.Document, source []byte) []calloutTarget {
 		}
 		firstLine := paragraph.Lines().At(0)
 		marker := strings.TrimRight(string(firstLine.Value(source)), "\n")
-		class, ok := calloutClassByMarker[marker]
+		class, ok := classByMarker[marker]
 		if !ok {
 			return ast.WalkSkipChildren
 		}

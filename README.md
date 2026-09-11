@@ -63,20 +63,23 @@ It does not render, translate or resolve. A title for the callout, an icon, a
 colour, a link target looked up in a store — all of that belongs to whoever holds
 the page, because each of them answers differently on a web page and in an app.
 
+Which markers exist is not among the things a caller sets. That table is what makes
+the dialect this one rather than another, so `New()` is the only dialect there is.
+
 ## Use
 
 ```go
 source := []byte("> [!TIP]\n> Try the shorter form.\n")
 
 var out bytes.Buffer
-if err := wlmarkdown.Dialect().Convert(source, &out); err != nil {
+if err := wlmarkdown.New().Markdown().Convert(source, &out); err != nil {
     return err
 }
 ```
 
-`Recognise(source)` returns the flat list of dialect constructs found, in document
-order. It is what the corpus is written against, so every port of this library
-answers the same questions with the same words.
+`New().Recognise(source)` returns the flat list of dialect constructs found, in
+document order. It is what the corpus is written against, so every port of this
+library answers the same questions with the same words.
 
 ## The corpus
 

@@ -5,12 +5,30 @@ import (
 	"github.com/yuin/goldmark/extension"
 )
 
-func Dialect() goldmark.Markdown {
+type Dialect struct {
+	calloutClassByMarker map[string]string
+	mapMarker            string
+}
+
+func New() Dialect {
+	return Dialect{
+		calloutClassByMarker: map[string]string{
+			"[!NOTE]":      "note",
+			"[!TIP]":       "tip",
+			"[!IMPORTANT]": "important",
+			"[!WARNING]":   "warning",
+			"[!CAUTION]":   "caution",
+		},
+		mapMarker: "[!MAP]",
+	}
+}
+
+func (d Dialect) Markdown() goldmark.Markdown {
 	return goldmark.New(goldmark.WithExtensions(
 		extension.Table,
 		extension.Strikethrough,
 		extension.TaskList,
-		&mapEmbedExtension{},
-		&calloutExtension{},
+		&mapEmbedExtension{marker: d.mapMarker},
+		&calloutExtension{classByMarker: d.calloutClassByMarker},
 	))
 }

@@ -13,8 +13,6 @@ import (
 
 var KindMapEmbed = ast.NewNodeKind("wikilayer.MapEmbed")
 
-const mapEmbedMarker = "[!MAP]"
-
 type MapEmbed struct {
 	ast.BaseBlock
 	Lat     string
@@ -32,15 +30,19 @@ func (n *MapEmbed) Dump(source []byte, level int) {
 	}, nil)
 }
 
-type mapEmbedExtension struct{}
+type mapEmbedExtension struct {
+	marker string
+}
 
 func (e *mapEmbedExtension) Extend(md goldmark.Markdown) {
 	md.Parser().AddOptions(parser.WithASTTransformers(
-		util.Prioritized(&mapEmbedTransformer{}, 100),
+		util.Prioritized(&mapEmbedTransformer{marker: e.marker}, 100),
 	))
 }
 
-type mapEmbedTransformer struct{}
+type mapEmbedTransformer struct {
+	marker string
+}
 
 type mapEmbedTarget struct {
 	quote *ast.Blockquote
@@ -49,7 +51,7 @@ type mapEmbedTarget struct {
 
 func (t *mapEmbedTransformer) Transform(doc *ast.Document, reader text.Reader, _ parser.Context) {
 	source := reader.Source()
-	for _, found := range mapEmbedTargets(doc, source) {
+	for _, found := range mapEmbedTargets(doc, source, t.marker) {
 		place := &MapEmbed{
 			Lat:     found.place.Lat,
 			Lng:     found.place.Lng,
@@ -61,14 +63,14 @@ func (t *mapEmbedTransformer) Transform(doc *ast.Document, reader text.Reader, _
 	}
 }
 
-func mapEmbedTargets(doc *ast.Document, source []byte) []mapEmbedTarget {
+func mapEmbedTargets(doc *ast.Document, source []byte, marker string) []mapEmbedTarget {
 	var targets []mapEmbedTarget
 	walk(doc, func(n ast.Node) ast.WalkStatus {
 		quote, ok := n.(*ast.Blockquote)
 		if !ok {
 			return ast.WalkContinue
 		}
-		place, ok := placeInQuote(quote, source)
+		place, ok := placeInQuote(quote, source, marker)
 		if !ok {
 			return ast.WalkSkipChildren
 		}
@@ -78,7 +80,7 @@ func mapEmbedTargets(doc *ast.Document, source []byte) []mapEmbedTarget {
 	return targets
 }
 
-func placeInQuote(quote *ast.Blockquote, source []byte) (MapEmbed, bool) {
+func placeInQuote(quote *ast.Blockquote, source []byte, marker string) (MapEmbed, bool) {
 	const markerAndCoordinates = 2
 
 	paragraph, ok := quote.FirstChild().(*ast.Paragraph)
@@ -89,7 +91,7 @@ func placeInQuote(quote *ast.Blockquote, source []byte) (MapEmbed, bool) {
 	if lines.Len() < markerAndCoordinates {
 		return MapEmbed{}, false
 	}
-	if line(lines.At(0), source) != mapEmbedMarker {
+	if line(lines.At(0), source) != marker {
 		return MapEmbed{}, false
 	}
 	lat, lng, ok := coordinates(line(lines.At(1), source))

@@ -34,7 +34,7 @@ func TestTheDialectRecognisesWhatTheCorpusSays(t *testing.T) {
 
 	for _, one := range held.Cases {
 		t.Run(one.Name, func(t *testing.T) {
-			got := wlmarkdown.Recognise([]byte(one.Markdown))
+			got := wlmarkdown.New().Recognise([]byte(one.Markdown))
 			want := one.Found
 			if want == nil {
 				want = []wlmarkdown.Found{}

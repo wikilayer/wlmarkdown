@@ -16,9 +16,9 @@ type Found struct {
 	Text    string `yaml:"text,omitempty"`
 }
 
-func Recognise(source []byte) []Found {
+func (d Dialect) Recognise(source []byte) []Found {
 	reader := text.NewReader(source)
-	doc := Dialect().Parser().Parse(reader)
+	doc := d.Markdown().Parser().Parse(reader)
 
 	found := []Found{}
 	walk(doc, func(n ast.Node) ast.WalkStatus {
