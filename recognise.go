@@ -13,6 +13,8 @@ type Found struct {
 	Lat     string `yaml:"lat,omitempty"`
 	Lng     string `yaml:"lng,omitempty"`
 	Caption string `yaml:"caption,omitempty"`
+	Target  string `yaml:"target,omitempty"`
+	Ref     string `yaml:"ref,omitempty"`
 	Text    string `yaml:"text,omitempty"`
 }
 
@@ -29,7 +31,7 @@ func (d Dialect) Recognise(source []byte) []Found {
 				Class: spoken.Class,
 				Text:  plainText(spoken, source),
 			})
-			return ast.WalkSkipChildren
+			return ast.WalkContinue
 		case *MapEmbed:
 			found = append(found, Found{
 				Kind:    "map",
@@ -38,10 +40,28 @@ func (d Dialect) Recognise(source []byte) []Found {
 				Caption: spoken.Caption,
 			})
 			return ast.WalkSkipChildren
+		case *ast.Link:
+			target, ref := d.refInDestination(string(spoken.Destination))
+			found = append(found, Found{
+				Kind:   "link",
+				Target: target,
+				Ref:    ref,
+				Text:   plainText(spoken, source),
+			})
+			return ast.WalkSkipChildren
 		}
 		return ast.WalkContinue
 	})
 	return found
+}
+
+func (d Dialect) refInDestination(destination string) (target, ref string) {
+	for _, scheme := range d.refSchemes {
+		if tail, ok := strings.CutPrefix(destination, scheme+":"); ok {
+			return scheme, tail
+		}
+	}
+	return "url", destination
 }
 
 func plainText(from ast.Node, source []byte) string {

@@ -194,6 +194,69 @@ cases:
         class: note
         text: Where to find us. [!MAP] 44.8032201, 20.4726824
 
+  - name: a page ref names its scheme and hands on the rest
+    markdown: |
+      Read [the libraries page](page:42685) first.
+    found:
+      - kind: link
+        target: page
+        ref: "42685"
+        text: the libraries page
+
+  - name: a block ref is a scheme of its own
+    markdown: |
+      The [principle](block:50386) says it.
+    found:
+      - kind: link
+        target: block
+        ref: "50386"
+        text: principle
+
+  - name: a link to anywhere else is a url
+    markdown: |
+      Built on [goldmark](https://github.com/yuin/goldmark).
+    found:
+      - kind: link
+        target: url
+        ref: "https://github.com/yuin/goldmark"
+        text: goldmark
+
+  - name: what follows the scheme is handed on as written, whatever it is
+    markdown: |
+      A [signed number](page:+5) is what the source wrote.
+    found:
+      - kind: link
+        target: page
+        ref: "+5"
+        text: signed number
+
+  - name: a link inside a callout is found
+    markdown: |
+      > [!NOTE]
+      > Read the [principle](block:50386) first.
+    found:
+      - kind: callout
+        class: note
+        text: Read the principle first.
+      - kind: link
+        target: block
+        ref: "50386"
+        text: principle
+
+  - name: a coordinate keeps the sign it was written with
+    markdown: |
+      > [!MAP]
+      > +44.80, -20.47
+    found:
+      - kind: map
+        lat: "+44.80"
+        lng: "-20.47"
+
+  - name: an autolink is not a link the dialect reports
+    markdown: |
+      Plain <https://example.com/page> stands on its own.
+    found: []
+
   - name: a callout inside a callout is one callout, not two
     markdown: |
       > [!NOTE]

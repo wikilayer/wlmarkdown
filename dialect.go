@@ -8,6 +8,7 @@ import (
 type Dialect struct {
 	calloutClassByMarker map[string]string
 	mapMarker            string
+	refSchemes           []string
 }
 
 func New() Dialect {
@@ -19,7 +20,8 @@ func New() Dialect {
 			"[!WARNING]":   "warning",
 			"[!CAUTION]":   "caution",
 		},
-		mapMarker: "[!MAP]",
+		mapMarker:  "[!MAP]",
+		refSchemes: []string{"page", "block"},
 	}
 }
 

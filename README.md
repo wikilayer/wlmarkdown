@@ -35,12 +35,27 @@ Both numbers have to parse as numbers, or the quote stays a quote. They are hand
 on as the source wrote them, digit for digit, because rounding a coordinate moves
 the point.
 
+A link may name a node instead of a URL, under the scheme `page:` or `block:`:
+
+```markdown
+Read [the libraries page](page:42685) first.
+```
+
+The dialect reads the scheme and hands on whatever follows it, character for
+character. Whether `42685` names anything, whether it is even a number, and what
+URL it turns into are questions a store answers, not a parser.
+
 ## Limitations
 
-A construct inside a callout is not recognised. A quote within a quote stays an
-ordinary quote, so a map inside a note is a quote as well. This is written into the
-corpus as a case of its own, rather than left to how the walk happens to be
-arranged.
+A quote within a quote is not looked into. The inner one stays an ordinary quote, so
+a map inside a note, and a note inside a note, are quotes as well. Inline
+constructs are a different matter: a link is found wherever it sits, a callout
+included. Both are written into the corpus as cases of their own, rather than left
+to how the walk happens to be arranged.
+
+An autolink is not reported either. `<https://example.com/page>` stays whatever
+CommonMark makes of it, and only a link written with brackets and a destination
+comes back from `Recognise`.
 
 Markdown as a whole is split on this, along the line of what the syntax is for.
 GitHub, whose alert spelling this dialect borrows, states that "alerts cannot be
