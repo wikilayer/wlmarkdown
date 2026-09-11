@@ -182,7 +182,7 @@ cases:
         lng: "20.4489"
         caption: Belgrade
 
-  - name: a place inside a callout stays a quote, and the callout keeps its words
+  - name: a place inside a callout is found, and the callout keeps its own words
     markdown: |
       > [!NOTE]
       > Where to find us.
@@ -192,7 +192,10 @@ cases:
     found:
       - kind: callout
         class: note
-        text: Where to find us. [!MAP] 44.7866, 20.4489
+        text: Where to find us.
+      - kind: map
+        lat: "44.7866"
+        lng: "20.4489"
 
   - name: a marker in lower case stays a quote
     markdown: |
@@ -301,6 +304,18 @@ cases:
   - name: an autolink is not a link the dialect reports
     markdown: |
       Plain <https://example.com/page> stands on its own.
+    found: []
+
+  - name: a place inside an ordinary quote is not found
+    markdown: |
+      > Plain quoted words.
+      >
+      > > [!MAP]
+      > > 44.7866, 20.4489
+    found: []
+
+  - name: a marker with a space after it is not a marker
+    markdown: "> [!NOTE] \n> Body.\n"
     found: []
 
   - name: a callout inside a callout is one callout, not two

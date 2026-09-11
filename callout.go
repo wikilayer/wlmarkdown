@@ -12,6 +12,8 @@ import (
 
 var KindCallout = ast.NewNodeKind("wikilayer.Callout")
 
+const calloutPriority = 100
+
 type Callout struct {
 	ast.BaseBlock
 	Class string
@@ -29,7 +31,7 @@ type calloutExtension struct {
 
 func (e *calloutExtension) Extend(md goldmark.Markdown) {
 	md.Parser().AddOptions(parser.WithASTTransformers(
-		util.Prioritized(&calloutTransformer{classByMarker: e.classByMarker}, 100),
+		util.Prioritized(&calloutTransformer{classByMarker: e.classByMarker}, calloutPriority),
 	))
 }
 

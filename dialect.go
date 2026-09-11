@@ -29,8 +29,8 @@ func New() Dialect {
 func (d Dialect) Extensions() []goldmark.Extender {
 	return []goldmark.Extender{
 		extension.GFM,
-		&mapEmbedExtension{marker: d.mapMarker},
 		&calloutExtension{classByMarker: d.calloutClassByMarker},
+		&mapEmbedExtension{marker: d.mapMarker},
 	}
 }
 

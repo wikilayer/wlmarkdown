@@ -49,26 +49,25 @@ there at all and what URL it turns into. None of those is a parser's to answer.
 
 ## Limitations
 
-A quote within a quote is not looked into. The inner one stays an ordinary quote, so
-a map inside a note, and a note inside a note, are quotes as well. Inline
-constructs are a different matter: a link is found wherever it sits, a callout
-included. Both are corpus cases, so neither can change without a case going red.
+A callout inside a callout is one callout. The transformer stops at the first marker
+it matches and looks no further down that quote, so the inner marker stays part of
+the outer body.
+
+A map inside a callout is found, because the callout is made first and the map is
+looked for inside it afterwards. That order is a stated priority rather than an
+accident of registration, and a corpus case goes red if it inverts. A link is found
+wherever it sits, a callout included.
 
 An autolink is not reported either. `<https://example.com/page>` stays whatever
 CommonMark makes of it, and only a link written with brackets and a destination
 comes back from `Recognise`.
 
-Markdown as a whole is split on this, along the line of what the syntax is for.
-GitHub, whose alert spelling this dialect borrows, states that "alerts cannot be
-nested within other elements". Obsidian, which builds a knowledge base out of them,
-says "you can nest callouts in multiple levels" and gives an example three deep.
-Material for MkDocs nests admonitions by indentation and describes them as allowing
-"the inclusion and nesting of arbitrary content".
-
-This dialect follows GitHub, because the choice is not a symmetric one. Refusing
-nesting stays reversible for as long as no page relies on it, while allowing it
-commits every port to the same recursion and cannot be taken back from pages
-already written.
+Markdown is split on nesting callouts. GitHub, whose alert spelling this dialect
+borrows, states that "alerts cannot be nested within other elements". Obsidian says
+"you can nest callouts in multiple levels" and gives an example three deep, and
+Material for MkDocs nests admonitions by indentation. Where the two disagree, this
+dialect is neither a fresh choice nor a reading of that argument: it reproduces what
+pages already written rely on.
 
 ## What this library does and does not do
 

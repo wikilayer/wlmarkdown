@@ -13,6 +13,8 @@ import (
 
 var KindMapEmbed = ast.NewNodeKind("wikilayer.MapEmbed")
 
+const mapEmbedPriority = calloutPriority + 10
+
 type MapEmbed struct {
 	ast.BaseBlock
 	Lat     string
@@ -36,7 +38,7 @@ type mapEmbedExtension struct {
 
 func (e *mapEmbedExtension) Extend(md goldmark.Markdown) {
 	md.Parser().AddOptions(parser.WithASTTransformers(
-		util.Prioritized(&mapEmbedTransformer{marker: e.marker}, 100),
+		util.Prioritized(&mapEmbedTransformer{marker: e.marker}, mapEmbedPriority),
 	))
 }
 
