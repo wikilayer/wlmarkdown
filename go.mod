@@ -1,4 +1,4 @@
-module github.com/wikilayer/markdown
+module github.com/wikilayer/wlmarkdown
 
 go 1.27.1
 

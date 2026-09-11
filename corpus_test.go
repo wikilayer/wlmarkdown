@@ -1,4 +1,4 @@
-package markdown_test
+package wlmarkdown_test
 
 import (
 	"os"
@@ -7,14 +7,14 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/wikilayer/markdown"
+	"github.com/wikilayer/wlmarkdown"
 )
 
 type corpus struct {
 	Cases []struct {
-		Name     string           `yaml:"name"`
-		Markdown string           `yaml:"markdown"`
-		Found    []markdown.Found `yaml:"found"`
+		Name     string             `yaml:"name"`
+		Markdown string             `yaml:"markdown"`
+		Found    []wlmarkdown.Found `yaml:"found"`
 	} `yaml:"cases"`
 }
 
@@ -34,10 +34,10 @@ func TestTheDialectRecognisesWhatTheCorpusSays(t *testing.T) {
 
 	for _, one := range held.Cases {
 		t.Run(one.Name, func(t *testing.T) {
-			got := markdown.Recognise([]byte(one.Markdown))
+			got := wlmarkdown.Recognise([]byte(one.Markdown))
 			want := one.Found
 			if want == nil {
-				want = []markdown.Found{}
+				want = []wlmarkdown.Found{}
 			}
 			if !reflect.DeepEqual(got, want) {
 				t.Errorf("recognised %+v, the corpus says %+v", got, want)

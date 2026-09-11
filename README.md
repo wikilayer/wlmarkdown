@@ -1,4 +1,4 @@
-# markdown
+# wlmarkdown
 
 The WikiLayer markdown dialect: ordinary CommonMark with tables, strikethrough and
 task lists, plus the constructs the dialect adds of its own.
@@ -37,7 +37,7 @@ the page, because each of them answers differently on a web page and in an app.
 source := []byte("> [!TIP]\n> Try the shorter form.\n")
 
 var out bytes.Buffer
-if err := markdown.Dialect().Convert(source, &out); err != nil {
+if err := wlmarkdown.Dialect().Convert(source, &out); err != nil {
     return err
 }
 ```

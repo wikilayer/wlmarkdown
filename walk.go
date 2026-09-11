@@ -1,4 +1,4 @@
-package markdown
+package wlmarkdown
 
 import "github.com/yuin/goldmark/ast"
 
