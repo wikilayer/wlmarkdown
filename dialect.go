@@ -10,6 +10,7 @@ func Dialect() goldmark.Markdown {
 		extension.Table,
 		extension.Strikethrough,
 		extension.TaskList,
+		&mapEmbedExtension{},
 		&calloutExtension{},
 	))
 }

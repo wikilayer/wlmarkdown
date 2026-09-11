@@ -95,3 +95,89 @@ cases:
       - kind: callout
         class: tip
         text: The second.
+
+  - name: a place is a marker, a point and what follows as its caption
+    markdown: |
+      > [!MAP]
+      > 44.8032201, 20.4726824
+      > Krunska 72, 11000 Beograd
+    found:
+      - kind: map
+        lat: "44.8032201"
+        lng: "20.4726824"
+        caption: Krunska 72, 11000 Beograd
+
+  - name: a place needs no caption
+    markdown: |
+      > [!MAP]
+      > 44.8032201, 20.4726824
+    found:
+      - kind: map
+        lat: "44.8032201"
+        lng: "20.4726824"
+
+  - name: a caption spread over lines is read as one
+    markdown: |
+      > [!MAP]
+      > 44.8032201, 20.4726824
+      > Krunska 72
+      > 11000 Beograd
+    found:
+      - kind: map
+        lat: "44.8032201"
+        lng: "20.4726824"
+        caption: Krunska 72 11000 Beograd
+
+  - name: a point south and west of zero is still a point
+    markdown: |
+      > [!MAP]
+      > -22.9068467, -43.1728965
+      > Rio de Janeiro
+    found:
+      - kind: map
+        lat: "-22.9068467"
+        lng: "-43.1728965"
+        caption: Rio de Janeiro
+
+  - name: the point keeps the digits it was written with
+    markdown: |
+      > [!MAP]
+      > 44.80, 20.47000
+    found:
+      - kind: map
+        lat: "44.80"
+        lng: "20.47000"
+
+  - name: a map marker with no point under it stays a quote
+    markdown: |
+      > [!MAP]
+      > Krunska 72, Beograd
+    found: []
+
+  - name: a map marker alone stays a quote
+    markdown: |
+      > [!MAP]
+    found: []
+
+  - name: a point with no comma stays a quote
+    markdown: |
+      > [!MAP]
+      > 44.8032201 20.4726824
+    found: []
+
+  - name: a callout and a place in one document are both recognised
+    markdown: |
+      > [!NOTE]
+      > Where to find us.
+
+      > [!MAP]
+      > 44.8032201, 20.4726824
+      > Krunska 72
+    found:
+      - kind: callout
+        class: note
+        text: Where to find us.
+      - kind: map
+        lat: "44.8032201"
+        lng: "20.4726824"
+        caption: Krunska 72
