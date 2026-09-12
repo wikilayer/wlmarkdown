@@ -129,6 +129,11 @@ which marker opens a map, what counts as a coordinate, which schemes a link may 
 written under. `corpus/dialect.yaml` holds the cases it is defined by, a piece of
 markdown and what must be recognised in it.
 
+One thing the cases cannot reach is bare-URL linking. A port has to switch it on
+all the same, because a page written against it renders differently without it, and
+no case will say so: the flat list a case is written against reports no autolink to
+compare.
+
 Both files are the dialect, and the code is an implementation of them. Go reads the
 rules out of the file it embeds rather than repeating them, and every port reads the
 same two, which is what keeps them from drifting apart. A new marker or a new case

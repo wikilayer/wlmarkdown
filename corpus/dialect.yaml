@@ -346,3 +346,90 @@ cases:
       - kind: callout
         class: note
         text: Outer. [!TIP] Inner.
+
+  - name: a marker below the first line is not a marker
+    markdown: |
+      > Words came first.
+      > [!NOTE]
+    found: []
+
+  - name: a callout with nothing under it is still a callout
+    markdown: |
+      > [!NOTE]
+    found:
+      - kind: callout
+        class: note
+
+  - name: a line break inside a body reads as a space
+    markdown: |
+      > [!NOTE]
+      > one
+      > two
+    found:
+      - kind: callout
+        class: note
+        text: one two
+
+  - name: a list in a body is read as its words
+    markdown: |
+      > [!NOTE]
+      > - one
+      > - two
+    found:
+      - kind: callout
+        class: note
+        text: one two
+
+  - name: a fenced block in a body is left out of the words
+    markdown: |
+      > [!NOTE]
+      > Body.
+      >
+      > ```go
+      > code()
+      > ```
+    found:
+      - kind: callout
+        class: note
+        text: Body.
+
+  - name: a table in a body is read as its cells
+    markdown: |
+      > [!NOTE]
+      > | a | b |
+      > |---|---|
+      > | 1 | 2 |
+    found:
+      - kind: callout
+        class: note
+        text: a b 1 2
+
+  - name: a strikethrough in a body keeps the words and drops the marks
+    markdown: |
+      > [!NOTE]
+      > ~~gone~~ and here.
+    found:
+      - kind: callout
+        class: note
+        text: gone and here.
+
+  - name: a task list in a body is read as its words
+    markdown: |
+      > [!NOTE]
+      > - [ ] one
+      > - [x] two
+    found:
+      - kind: callout
+        class: note
+        text: one two
+
+  - name: a caption stays the markdown it was written as
+    markdown: |
+      > [!MAP]
+      > 44.7866, 20.4489
+      > [the principle](block:50386)
+    found:
+      - kind: map
+        lat: "44.7866"
+        lng: "20.4489"
+        caption: "[the principle](block:50386)"
