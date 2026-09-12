@@ -11,7 +11,7 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-var KindMapEmbed = ast.NewNodeKind("wikilayer.MapEmbed")
+var KindMapEmbed = ast.NewNodeKind("wlmarkdown.MapEmbed")
 
 const mapEmbedPriority = calloutPriority + 10
 

@@ -90,6 +90,12 @@ the page, because each of them answers differently on a web page and in an app.
 Which markers exist is not among the things a caller sets. That table is what makes
 the dialect this one rather than another, so `New()` is the only dialect there is.
 
+`Markers()` names every marker that opens a construct here, `[!NOTE]` through
+`[!MAP]`. A quote whose first line is one of them and which comes back from
+`Recognise` as nothing was refused — the coordinates did not read as a point, say —
+and the dialect says so by silence. With the list you can notice that silence
+without writing the grammar out a second time.
+
 `Classes()` and `Schemes()` name the values that can come back in `Found.Class` and
 `Found.Scheme`, in sorted order. A host drawing an icon for each class, or resolving
 each scheme, can hold its tables against these instead of keeping a second copy that

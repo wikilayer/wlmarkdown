@@ -10,7 +10,7 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
-var KindCallout = ast.NewNodeKind("wikilayer.Callout")
+var KindCallout = ast.NewNodeKind("wlmarkdown.Callout")
 
 const calloutPriority = 100
 

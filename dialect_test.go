@@ -45,6 +45,21 @@ func TestEveryMarkerTheRulesNameCarriesItsClass(t *testing.T) {
 	}
 }
 
+func TestTheMarkersOnOfferAreEveryOneTheRulesName(t *testing.T) {
+	written := rules(t)
+	want := make([]string, 0, len(written.CalloutClassByMarker)+1)
+	for marker := range written.CalloutClassByMarker {
+		want = append(want, marker)
+	}
+	want = append(want, written.MapMarker)
+	slices.Sort(want)
+
+	if got := wlmarkdown.New().Markers(); !slices.Equal(got, want) {
+		t.Errorf("offered %v, the rules name %v; a host that wants to notice a marker "+
+			"nothing was made of has to keep its own list and drift", got, want)
+	}
+}
+
 func TestTheClassesOnOfferAreTheOnesTheRulesName(t *testing.T) {
 	written := rules(t).CalloutClassByMarker
 	want := make([]string, 0, len(written))

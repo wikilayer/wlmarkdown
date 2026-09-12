@@ -62,6 +62,16 @@ func (d Dialect) Extensions() []goldmark.Extender {
 	}
 }
 
+func (d Dialect) Markers() []string {
+	markers := make([]string, 0, len(d.calloutClassByMarker)+1)
+	for marker := range d.calloutClassByMarker {
+		markers = append(markers, marker)
+	}
+	markers = append(markers, d.mapMarker)
+	slices.Sort(markers)
+	return slices.Compact(markers)
+}
+
 func (d Dialect) Classes() []string {
 	classes := make([]string, 0, len(d.calloutClassByMarker))
 	for _, class := range d.calloutClassByMarker {

@@ -26,6 +26,26 @@ asks of you.
 Changes are documented here in the format of
 [Keep a Changelog](https://keepachangelog.com/).
 
+## 0.2.0 - 2026-09-13
+
+### Added
+
+- `Markers()`, the sorted list of every marker that opens a construct here,
+  `[!NOTE]` through `[!MAP]`. It answers a question the library used to leave
+  unanswerable: a quote that carries a marker and comes back from `Recognise` as
+  nothing was refused, and until now the only way to notice was to write the
+  grammar out a second time in your own code and watch the two drift.
+
+### Changed
+
+- The two node kinds now print as `wlmarkdown.Callout` and `wlmarkdown.MapEmbed`
+  instead of `wikilayer.Callout` and `wikilayer.MapEmbed`. A host that replaces
+  them with nodes of its own was registering a kind under the very name this
+  library had taken, so an AST dump held two kinds spelled alike and the name that
+  belongs to the application was not free for it to use. The kinds compare as
+  before and nothing but the printed name changed; if you match on
+  `Kind().String()`, that string moved.
+
 ## 0.1.1 - 2026-09-13
 
 ### Added
