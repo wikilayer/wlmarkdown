@@ -17,8 +17,37 @@ colour it gets, which address `page:home` resolves to: a web page answers each o
 those one way and a phone app another, so each belongs to the application holding
 the pages rather than to a parser.
 
+What the things named below look like is not repeated here: the
+[package reference](https://pkg.go.dev/github.com/wikilayer/wlmarkdown) carries the
+signatures and fields, and the README an example of each, the shape of the corpus
+files among them. This file says only what changed between versions and what that
+asks of you.
+
 Changes are documented here in the format of
 [Keep a Changelog](https://keepachangelog.com/).
+
+## 0.1.1 - 2026-09-13
+
+### Added
+
+- A bound on where this library's own work sits in goldmark's order. Goldmark runs
+  AST transformers from the lowest priority up, and every transformer this library
+  registers runs below 200. So if you swap the node the dialect built — a `Callout`
+  or a `MapEmbed`, the two carrying `KindCallout` and `KindMapEmbed` — for an AST
+  node of your own, to give a callout a title in your reader's language or a map an
+  embed URL, register your transformer at 200 or above and it will meet that node
+  already built. Nothing parses differently than in 0.1.0; the bound held
+  there too, but it was a number you had to read out of the source, and now it is a
+  promise with a test behind it.
+
+### Fixed
+
+- A sign written outside ASCII in `corpus/rules.yaml` — a typographic minus, say —
+  was read a byte at a time and so went unrecognised here, while a port walking
+  characters would have honoured it. The signs the rules name today, `+` and `-`,
+  behave exactly as before; what changed is that the alphabet is now read the way
+  the file means it, so the ports cannot part company over an entry someone adds
+  to it later.
 
 ## 0.1.0 - 2026-09-12
 
@@ -33,9 +62,9 @@ First release.
   `[!IMPORTANT]`, `[!WARNING]` or `[!CAUTION]`. A marker sharing its line with
   words, or written in lower case, leaves an ordinary quote.
 - Map embeds: `[!MAP]`, then a line holding latitude and longitude separated by a
-  comma, and whatever follows as the caption. A coordinate is an optional sign, digits, and optionally a decimal point
-  and more digits. It comes back as a string, digit for digit, because a coordinate
-  rounded is a pin in the wrong street.
+  comma, and whatever follows as the caption. A coordinate is an optional sign,
+  digits, and optionally a decimal point and more digits. It comes back as a string,
+  digit for digit, because a coordinate rounded is a pin in the wrong street.
 - Links naming a node under `page:` or `block:`. The scheme comes back named and
   the destination exactly as written. Whether `50386` is there at all, and what URL
   it becomes, can only be answered by whatever holds the pages.

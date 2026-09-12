@@ -121,8 +121,25 @@ md := goldmark.New(
 )
 ```
 
-Both renderers are yours to write, and a goldmark without them cannot render a
-document that carries either node.
+Both renderers are yours to write, and a goldmark without them does not fail
+politely: `Convert` panics with an index out of range the first time it meets a
+node nobody registered a renderer for.
+
+The nodes are yours to replace as well. A host that hangs a localized title on a
+callout, or an embed URL on a map, does that in an AST transformer of its own, and
+that transformer has to meet the node after the dialect has built it. Every
+transformer this library registers runs below priority 200, so one registered at
+200 or above runs after all of them:
+
+```go
+goldmark.WithParserOptions(parser.WithASTTransformers(
+    util.Prioritized(yourCalloutDecoration{}, 200),
+))
+```
+
+That bound is what the library promises, and a test here holds it. Read it from
+this line rather than from the numbers in the source, which are free to move under
+it.
 
 ## Running it
 

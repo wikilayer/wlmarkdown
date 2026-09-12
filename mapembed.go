@@ -2,6 +2,7 @@ package wlmarkdown
 
 import (
 	"strings"
+	"unicode/utf8"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
@@ -148,8 +149,8 @@ func coordinates(spoken string, written coordinate) (lat, lng string, ok bool) {
 
 func (c coordinate) reads(spoken string) bool {
 	rest := spoken
-	if rest != "" && strings.ContainsRune(c.Signs, rune(rest[0])) {
-		rest = rest[1:]
+	if first, width := utf8.DecodeRuneInString(rest); strings.ContainsRune(c.Signs, first) {
+		rest = rest[width:]
 	}
 	whole, fraction, pointed := strings.Cut(rest, c.Point)
 	if !c.digitsOnly(whole) {
