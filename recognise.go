@@ -8,14 +8,14 @@ import (
 )
 
 type Found struct {
-	Kind    string `yaml:"kind"`
-	Class   string `yaml:"class,omitempty"`
-	Lat     string `yaml:"lat,omitempty"`
-	Lng     string `yaml:"lng,omitempty"`
-	Caption string `yaml:"caption,omitempty"`
-	Target  string `yaml:"target,omitempty"`
-	Ref     string `yaml:"ref,omitempty"`
-	Text    string `yaml:"text,omitempty"`
+	Kind        string `yaml:"kind"`
+	Class       string `yaml:"class,omitempty"`
+	Lat         string `yaml:"lat,omitempty"`
+	Lng         string `yaml:"lng,omitempty"`
+	Caption     string `yaml:"caption,omitempty"`
+	Scheme      string `yaml:"scheme,omitempty"`
+	Destination string `yaml:"destination,omitempty"`
+	Text        string `yaml:"text,omitempty"`
 }
 
 func (d Dialect) Recognise(source []byte) []Found {
@@ -41,12 +41,12 @@ func (d Dialect) Recognise(source []byte) []Found {
 			})
 			return ast.WalkSkipChildren
 		case *ast.Link:
-			target, ref := d.refInDestination(string(spoken.Destination))
+			destination := string(spoken.Destination)
 			found = append(found, Found{
-				Kind:   "link",
-				Target: target,
-				Ref:    ref,
-				Text:   plainText(spoken, source),
+				Kind:        "link",
+				Scheme:      d.schemeIn(destination),
+				Destination: destination,
+				Text:        plainText(spoken, source),
 			})
 			return ast.WalkSkipChildren
 		}
@@ -55,13 +55,13 @@ func (d Dialect) Recognise(source []byte) []Found {
 	return found
 }
 
-func (d Dialect) refInDestination(destination string) (target, ref string) {
+func (d Dialect) schemeIn(destination string) string {
 	for _, scheme := range d.refSchemes {
-		if tail, ok := strings.CutPrefix(destination, scheme+":"); ok {
-			return scheme, tail
+		if strings.HasPrefix(destination, scheme+":") {
+			return scheme
 		}
 	}
-	return "url", destination
+	return ""
 }
 
 func plainText(from ast.Node, source []byte) string {

@@ -57,7 +57,7 @@ func TestEverySchemeTheRulesNameIsReadAsOne(t *testing.T) {
 		t.Run(scheme, func(t *testing.T) {
 			source := fmt.Sprintf("A [label](%s:1).\n", scheme)
 			found := wlmarkdown.New().Recognise([]byte(source))
-			if len(found) != 1 || found[0].Target != scheme || found[0].Ref != "1" {
+			if len(found) != 1 || found[0].Scheme != scheme || found[0].Destination != scheme+":1" {
 				t.Errorf("%s: should be read as a scheme, recognised %+v", scheme, found)
 			}
 		})

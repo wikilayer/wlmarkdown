@@ -43,10 +43,14 @@ A link may name a node instead of a URL, under the scheme `page:` or `block:`:
 Read [the libraries page](page:42685) first.
 ```
 
-The dialect reads the scheme and hands on whatever follows it, character for
-character. A tail is as often a name as a number, `page:home` beside `page:42685`,
-and which names exist is a question a store answers, along with whether anything is
-there at all and what URL it turns into. None of those is a parser's to answer.
+The dialect names the scheme it recognises and hands the destination on character
+for character. What follows a scheme is as often a name as a number, `page:home`
+beside `page:42685`, and which names exist is a question a store answers, along with
+whether anything is there at all and what URL it turns into.
+
+A destination under no scheme of ours is reported with none. Whether it leads out of
+the site or back into it is not the parser's to say either: `/wiki/page` is a local
+address to whoever serves it and an unknown one here.
 
 ## Limitations
 

@@ -248,13 +248,13 @@ cases:
         class: warning
         text: Body with alt image.
 
-  - name: a page ref names its scheme and hands on the rest
+  - name: a page ref names its scheme and keeps its destination whole
     markdown: |
       Read [the libraries page](page:42685) first.
     found:
       - kind: link
-        target: page
-        ref: "42685"
+        scheme: page
+        destination: "page:42685"
         text: the libraries page
 
   - name: a block ref is a scheme of its own
@@ -262,8 +262,8 @@ cases:
       The [principle](block:50386) says it.
     found:
       - kind: link
-        target: block
-        ref: "50386"
+        scheme: block
+        destination: "block:50386"
         text: principle
 
   - name: a tail naming something rather than numbering it is handed on the same way
@@ -271,21 +271,20 @@ cases:
       Start at [the front page](page:home), not at the [glossary](page:glossary).
     found:
       - kind: link
-        target: page
-        ref: home
+        scheme: page
+        destination: "page:home"
         text: the front page
       - kind: link
-        target: page
-        ref: glossary
+        scheme: page
+        destination: "page:glossary"
         text: glossary
 
-  - name: a link to anywhere else is a url
+  - name: a link under no scheme of ours names none, and keeps its destination
     markdown: |
       Built on [goldmark](https://github.com/yuin/goldmark).
     found:
       - kind: link
-        target: url
-        ref: "https://github.com/yuin/goldmark"
+        destination: "https://github.com/yuin/goldmark"
         text: goldmark
 
   - name: what follows the scheme is handed on as written, whatever it is
@@ -293,8 +292,8 @@ cases:
       A [signed number](page:+5) is what the source wrote.
     found:
       - kind: link
-        target: page
-        ref: "+5"
+        scheme: page
+        destination: "page:+5"
         text: signed number
 
   - name: a link inside a callout is found
@@ -306,8 +305,8 @@ cases:
         class: note
         text: Read the principle first.
       - kind: link
-        target: block
-        ref: "50386"
+        scheme: block
+        destination: "block:50386"
         text: principle
 
   - name: a coordinate keeps the sign it was written with
