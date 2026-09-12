@@ -87,6 +87,12 @@ the page, because each of them answers differently on a web page and in an app.
 Which markers exist is not among the things a caller sets. That table is what makes
 the dialect this one rather than another, so `New()` is the only dialect there is.
 
+`Classes()` and `Schemes()` name the values that can come back in `Found.Class` and
+`Found.Scheme`, in sorted order. A host drawing an icon for each class, or resolving
+each scheme, can hold its tables against these instead of keeping a second copy that
+nothing compares. Both lists grow in a minor version, so read them rather than
+writing down what is in them today.
+
 ## Use
 
 `New().Recognise(source)` returns the flat list of dialect constructs found, in
@@ -125,8 +131,16 @@ make lint    # go vet, gofmt, staticcheck, commentcensor
 ## The corpus
 
 `corpus/rules.yaml` holds what the dialect knows: which markers name which class,
-which marker opens a map, what counts as a coordinate, which schemes a link may be
-written under. `corpus/dialect.yaml` holds the cases it is defined by, a piece of
+which marker opens a map, which characters a coordinate is written from, which
+characters count as blank, and which schemes a link may be written under.
+
+The alphabets are spelled out rather than named, because a name is where ports
+drift: `isDigit` in Kotlin admits Devanagari digits, `IsSpace` in Go admits the
+non-breaking space and `Character.isWhitespace` in Java does not. A coordinate is
+an optional sign, one or more digits, and optionally a point and one or more
+digits. Words come back with every run of blanks squeezed to one space and the ends
+trimmed, which is an outcome a port can check rather than an order of operations it
+has to copy. `corpus/dialect.yaml` holds the cases it is defined by, a piece of
 markdown and what must be recognised in it.
 
 One thing the cases cannot reach is bare-URL linking. A port has to switch it on

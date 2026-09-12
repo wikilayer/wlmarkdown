@@ -3,6 +3,7 @@ package wlmarkdown_test
 import (
 	"fmt"
 	"os"
+	"slices"
 	"testing"
 
 	"gopkg.in/yaml.v3"
@@ -41,6 +42,29 @@ func TestEveryMarkerTheRulesNameCarriesItsClass(t *testing.T) {
 				t.Errorf("%s should carry class %q, recognised %+v", marker, class, found)
 			}
 		})
+	}
+}
+
+func TestTheClassesOnOfferAreTheOnesTheRulesName(t *testing.T) {
+	written := rules(t).CalloutClassByMarker
+	want := make([]string, 0, len(written))
+	for _, class := range written {
+		want = append(want, class)
+	}
+	slices.Sort(want)
+	want = slices.Compact(want)
+
+	if got := wlmarkdown.New().Classes(); !slices.Equal(got, want) {
+		t.Errorf("offered %v, the rules name %v", got, want)
+	}
+}
+
+func TestTheSchemesOnOfferAreTheOnesTheRulesName(t *testing.T) {
+	want := slices.Clone(rules(t).RefSchemes)
+	slices.Sort(want)
+
+	if got := wlmarkdown.New().Schemes(); !slices.Equal(got, want) {
+		t.Errorf("offered %v, the rules name %v", got, want)
 	}
 }
 

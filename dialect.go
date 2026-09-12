@@ -2,7 +2,7 @@ package wlmarkdown
 
 import (
 	_ "embed"
-	"regexp"
+	"slices"
 	"sync"
 
 	"github.com/yuin/goldmark"
@@ -17,14 +17,22 @@ var writtenRules []byte
 type Dialect struct {
 	calloutClassByMarker map[string]string
 	mapMarker            string
-	coordinate           *regexp.Regexp
+	coordinate           coordinate
+	blanks               string
 	refSchemes           []string
+}
+
+type coordinate struct {
+	Signs  string `yaml:"signs"`
+	Digits string `yaml:"digits"`
+	Point  string `yaml:"point"`
 }
 
 type rules struct {
 	CalloutClassByMarker map[string]string `yaml:"callout_class_by_marker"`
 	MapMarker            string            `yaml:"map_marker"`
-	Coordinate           string            `yaml:"coordinate"`
+	Coordinate           coordinate        `yaml:"coordinate"`
+	Blanks               string            `yaml:"blanks"`
 	RefSchemes           []string          `yaml:"ref_schemes"`
 }
 
@@ -36,7 +44,8 @@ var read = sync.OnceValue(func() Dialect {
 	return Dialect{
 		calloutClassByMarker: held.CalloutClassByMarker,
 		mapMarker:            held.MapMarker,
-		coordinate:           regexp.MustCompile(held.Coordinate),
+		coordinate:           held.Coordinate,
+		blanks:               held.Blanks,
 		refSchemes:           held.RefSchemes,
 	}
 })
@@ -49,8 +58,23 @@ func (d Dialect) Extensions() []goldmark.Extender {
 	return []goldmark.Extender{
 		extension.GFM,
 		&calloutExtension{classByMarker: d.calloutClassByMarker},
-		&mapEmbedExtension{marker: d.mapMarker, coordinate: d.coordinate},
+		&mapEmbedExtension{marker: d.mapMarker, point: d.coordinate},
 	}
+}
+
+func (d Dialect) Classes() []string {
+	classes := make([]string, 0, len(d.calloutClassByMarker))
+	for _, class := range d.calloutClassByMarker {
+		classes = append(classes, class)
+	}
+	slices.Sort(classes)
+	return slices.Compact(classes)
+}
+
+func (d Dialect) Schemes() []string {
+	schemes := slices.Clone(d.refSchemes)
+	slices.Sort(schemes)
+	return schemes
 }
 
 func (d Dialect) Parser() parser.Parser {

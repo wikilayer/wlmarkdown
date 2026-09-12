@@ -29,7 +29,7 @@ func (d Dialect) Recognise(source []byte) []Found {
 			found = append(found, Found{
 				Kind:  "callout",
 				Class: spoken.Class,
-				Text:  plainText(spoken, source),
+				Text:  d.plainText(spoken, source),
 			})
 			return ast.WalkContinue
 		case *MapEmbed:
@@ -46,7 +46,7 @@ func (d Dialect) Recognise(source []byte) []Found {
 				Kind:        "link",
 				Scheme:      d.schemeIn(destination),
 				Destination: destination,
-				Text:        plainText(spoken, source),
+				Text:        d.plainText(spoken, source),
 			})
 			return ast.WalkSkipChildren
 		}
@@ -64,10 +64,10 @@ func (d Dialect) schemeIn(destination string) string {
 	return ""
 }
 
-func plainText(from ast.Node, source []byte) string {
+func (d Dialect) plainText(from ast.Node, source []byte) string {
 	var written strings.Builder
 	walk(from, func(n ast.Node) ast.WalkStatus {
-		if n.Type() == ast.TypeBlock && needsGap(written.String()) {
+		if n.Type() == ast.TypeBlock {
 			written.WriteString(" ")
 		}
 		if leaf, ok := n.(*ast.Text); ok {
@@ -78,9 +78,22 @@ func plainText(from ast.Node, source []byte) string {
 		}
 		return ast.WalkContinue
 	})
-	return strings.TrimSpace(written.String())
+	return d.squeezed(written.String())
 }
 
-func needsGap(written string) bool {
-	return written != "" && !strings.HasSuffix(written, " ")
+func (d Dialect) squeezed(written string) string {
+	var said strings.Builder
+	spaced := true
+	for _, letter := range written {
+		if strings.ContainsRune(d.blanks, letter) {
+			if !spaced {
+				said.WriteString(" ")
+			}
+			spaced = true
+			continue
+		}
+		said.WriteRune(letter)
+		spaced = false
+	}
+	return strings.TrimSuffix(said.String(), " ")
 }

@@ -423,6 +423,29 @@ cases:
         class: note
         text: one two
 
+  - name: a tab between words reads as one space
+    markdown: "> [!NOTE]\n> one\tTwo\n"
+    found:
+      - kind: callout
+        class: note
+        text: one Two
+
+  - name: spaces run together read as one
+    markdown: |
+      > [!NOTE]
+      > one  two
+    found:
+      - kind: callout
+        class: note
+        text: one two
+
+  - name: a non-breaking space is not one of the blanks and stays where it was
+    markdown: "> [!NOTE]\n> one two\n"
+    found:
+      - kind: callout
+        class: note
+        text: "one two"
+
   - name: a caption stays the markdown it was written as
     markdown: |
       > [!MAP]
