@@ -1,5 +1,8 @@
 # wlmarkdown
 
+[![Tests](https://github.com/wikilayer/wlmarkdown/actions/workflows/tests.yml/badge.svg)](https://github.com/wikilayer/wlmarkdown/actions/workflows/tests.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/wikilayer/wlmarkdown.svg)](https://pkg.go.dev/github.com/wikilayer/wlmarkdown)
+
 The WikiLayer markdown dialect: GitHub-flavoured markdown, meaning CommonMark plus
 tables, strikethrough, task lists and bare-URL linking, and then the constructs the
 dialect adds of its own.
@@ -152,3 +155,11 @@ Both files are the dialect, and the code is an implementation of them. Go reads 
 rules out of the file it embeds rather than repeating them, and every port reads the
 same two, which is what keeps them from drifting apart. A new marker or a new case
 is added once and is then asked of all of them.
+
+## Lines of Code
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/loc-history-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset=".github/loc-history-light.svg">
+  <img alt="Lines of Code graph" src=".github/loc-history-light.svg">
+</picture>
