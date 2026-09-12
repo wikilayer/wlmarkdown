@@ -1,0 +1,14 @@
+callout_class_by_marker:
+  "[!NOTE]": note
+  "[!TIP]": tip
+  "[!IMPORTANT]": important
+  "[!WARNING]": warning
+  "[!CAUTION]": caution
+
+map_marker: "[!MAP]"
+
+coordinate: "^[+-]?[0-9]+(\\.[0-9]+)?$"
+
+ref_schemes:
+  - page
+  - block

@@ -32,9 +32,10 @@ follows the coordinates is its caption:
 > Belgrade, the city centre
 ```
 
-Both numbers have to parse as numbers, or the quote stays a quote. They are handed
-on as the source wrote them, digit for digit, because rounding a coordinate moves
-the point.
+Both are digits carrying an optional sign and an optional fraction, and nothing
+else: no exponent, no hexadecimal, no infinity. Anything else leaves the quote a
+quote. They are handed on as the source wrote them, digit for digit, because
+rounding a coordinate moves the point.
 
 A link may name a node instead of a URL, under the scheme `page:` or `block:`:
 
@@ -119,7 +120,12 @@ make lint    # go vet, gofmt, staticcheck, commentcensor
 
 ## The corpus
 
-`corpus/dialect.yaml` holds the cases the dialect is defined by: a piece of
-markdown and what must be recognised in it. The Go test reads that file directly,
-and so does every port, which is what keeps them from drifting apart. A new
-construct is added to the corpus once and is then asked of all of them.
+`corpus/rules.yaml` holds what the dialect knows: which markers name which class,
+which marker opens a map, what counts as a coordinate, which schemes a link may be
+written under. `corpus/dialect.yaml` holds the cases it is defined by, a piece of
+markdown and what must be recognised in it.
+
+Both files are the dialect, and the code is an implementation of them. Go reads the
+rules out of the file it embeds rather than repeating them, and every port reads the
+same two, which is what keeps them from drifting apart. A new marker or a new case
+is added once and is then asked of all of them.

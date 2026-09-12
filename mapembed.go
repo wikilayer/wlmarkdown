@@ -1,7 +1,7 @@
 package wlmarkdown
 
 import (
-	"strconv"
+	"regexp"
 	"strings"
 
 	"github.com/yuin/goldmark"
@@ -33,17 +33,22 @@ func (n *MapEmbed) Dump(source []byte, level int) {
 }
 
 type mapEmbedExtension struct {
-	marker string
+	marker     string
+	coordinate *regexp.Regexp
 }
 
 func (e *mapEmbedExtension) Extend(md goldmark.Markdown) {
 	md.Parser().AddOptions(parser.WithASTTransformers(
-		util.Prioritized(&mapEmbedTransformer{marker: e.marker}, mapEmbedPriority),
+		util.Prioritized(
+			&mapEmbedTransformer{marker: e.marker, coordinate: e.coordinate},
+			mapEmbedPriority,
+		),
 	))
 }
 
 type mapEmbedTransformer struct {
-	marker string
+	marker     string
+	coordinate *regexp.Regexp
 }
 
 type mapEmbedTarget struct {
@@ -53,7 +58,7 @@ type mapEmbedTarget struct {
 
 func (t *mapEmbedTransformer) Transform(doc *ast.Document, reader text.Reader, _ parser.Context) {
 	source := reader.Source()
-	for _, found := range mapEmbedTargets(doc, source, t.marker) {
+	for _, found := range mapEmbedTargets(doc, source, t.marker, t.coordinate) {
 		place := &MapEmbed{
 			Lat:     found.place.Lat,
 			Lng:     found.place.Lng,
@@ -65,14 +70,19 @@ func (t *mapEmbedTransformer) Transform(doc *ast.Document, reader text.Reader, _
 	}
 }
 
-func mapEmbedTargets(doc *ast.Document, source []byte, marker string) []mapEmbedTarget {
+func mapEmbedTargets(
+	doc *ast.Document,
+	source []byte,
+	marker string,
+	coordinate *regexp.Regexp,
+) []mapEmbedTarget {
 	var targets []mapEmbedTarget
 	walk(doc, func(n ast.Node) ast.WalkStatus {
 		quote, ok := n.(*ast.Blockquote)
 		if !ok {
 			return ast.WalkContinue
 		}
-		place, ok := placeInQuote(quote, source, marker)
+		place, ok := placeInQuote(quote, source, marker, coordinate)
 		if !ok {
 			return ast.WalkSkipChildren
 		}
@@ -82,7 +92,12 @@ func mapEmbedTargets(doc *ast.Document, source []byte, marker string) []mapEmbed
 	return targets
 }
 
-func placeInQuote(quote *ast.Blockquote, source []byte, marker string) (MapEmbed, bool) {
+func placeInQuote(
+	quote *ast.Blockquote,
+	source []byte,
+	marker string,
+	coordinate *regexp.Regexp,
+) (MapEmbed, bool) {
 	const markerAndCoordinates = 2
 
 	paragraph, ok := quote.FirstChild().(*ast.Paragraph)
@@ -96,7 +111,7 @@ func placeInQuote(quote *ast.Blockquote, source []byte, marker string) (MapEmbed
 	if line(lines.At(0), source) != marker {
 		return MapEmbed{}, false
 	}
-	lat, lng, ok := coordinates(line(lines.At(1), source))
+	lat, lng, ok := coordinates(line(lines.At(1), source), coordinate)
 	if !ok {
 		return MapEmbed{}, false
 	}
@@ -117,7 +132,7 @@ func caption(paragraph *ast.Paragraph, source []byte) string {
 	return strings.Join(said, " ")
 }
 
-func coordinates(spoken string) (lat, lng string, ok bool) {
+func coordinates(spoken string, coordinate *regexp.Regexp) (lat, lng string, ok bool) {
 	const latitudeAndLongitude = 2
 
 	parts := strings.SplitN(spoken, ",", latitudeAndLongitude)
@@ -126,15 +141,10 @@ func coordinates(spoken string) (lat, lng string, ok bool) {
 	}
 	lat = strings.TrimSpace(parts[0])
 	lng = strings.TrimSpace(parts[1])
-	if !isNumber(lat) || !isNumber(lng) {
+	if !coordinate.MatchString(lat) || !coordinate.MatchString(lng) {
 		return "", "", false
 	}
 	return lat, lng, true
-}
-
-func isNumber(spoken string) bool {
-	_, err := strconv.ParseFloat(spoken, 64)
-	return err == nil
 }
 
 func line(segment text.Segment, source []byte) string {

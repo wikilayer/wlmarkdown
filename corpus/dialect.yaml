@@ -148,6 +148,24 @@ cases:
         lat: "44.80"
         lng: "20.47000"
 
+  - name: a point is digits with an optional sign and fraction, and nothing else
+    markdown: |
+      > [!MAP]
+      > Inf, NaN
+    found: []
+
+  - name: a number in exponent notation is not a point
+    markdown: |
+      > [!MAP]
+      > 4.48e1, 20.47
+    found: []
+
+  - name: a number written for a machine is not a point
+    markdown: |
+      > [!MAP]
+      > 0x1p-2, 20.47
+    found: []
+
   - name: a map marker with no point under it stays a quote
     markdown: |
       > [!MAP]
