@@ -17,11 +17,12 @@ colour it gets, which address `page:home` resolves to: a web page answers each o
 those one way and a phone app another, so each belongs to the application holding
 the pages rather than to a parser.
 
-What the things named below look like is not repeated here: the
-[package reference](https://pkg.go.dev/github.com/wikilayer/wlmarkdown) carries the
-signatures and fields, and the README an example of each, the shape of the corpus
-files among them. This file says only what changed between versions and what that
-asks of you.
+Signatures and fields are not repeated here: the
+[package reference](https://pkg.go.dev/github.com/wikilayer/wlmarkdown) carries
+those, and the README an example of each, including what the two files under
+`corpus/` hold. Which versions of goldmark and of Go it is built against is in
+`go.mod`, where it cannot go stale. This file says only what changed between
+versions and what that asks of you.
 
 Changes are documented here in the format of
 [Keep a Changelog](https://keepachangelog.com/).
@@ -30,21 +31,34 @@ Changes are documented here in the format of
 
 ### Added
 
-- `Markers()`, the sorted list of every marker that opens a construct here,
-  `[!NOTE]` through `[!MAP]`. It answers a question the library used to leave
-  unanswerable: a quote that carries a marker and comes back from `Recognise` as
-  nothing was refused, and until now the only way to notice was to write the
-  grammar out a second time in your own code and watch the two drift.
+- `Markers()`, every marker this dialect opens a construct with — the five callout
+  markers and `[!MAP]` — sorted, and spelled the way a document spells them:
+  `[!NOTE]`, not the class `note` that `Classes()` lists. Walk the parsed document
+  and a blockquote that still stands as a blockquote, whose first line is exactly
+  one of these — exactly, because a marker sharing its line with words was never a
+  candidate — is a construct the dialect declined to make. There are two ways to
+  arrive there: a map whose second line is missing or does not read as a pair of
+  coordinates, and a callout written as a quote inside another callout's quote,
+  whose inner blockquote this dialect leaves standing. Reading that first line off
+  the node is yours to do — the list spares you writing the six markers out a
+  second time, not the walk. As with `Classes()` and
+  `Schemes()`, a later version may add a marker; none already in the list will
+  change what it opens.
 
 ### Changed
 
 - The two node kinds now print as `wlmarkdown.Callout` and `wlmarkdown.MapEmbed`
-  instead of `wikilayer.Callout` and `wikilayer.MapEmbed`. A host that replaces
-  them with nodes of its own was registering a kind under the very name this
-  library had taken, so an AST dump held two kinds spelled alike and the name that
-  belongs to the application was not free for it to use. The kinds compare as
-  before and nothing but the printed name changed; if you match on
-  `Kind().String()`, that string moved.
+  instead of `wikilayer.Callout` and `wikilayer.MapEmbed`. **If you compare
+  `Kind().String()` against either of the old strings, or keep a recorded AST dump
+  in your tests, that text has to change.** Nothing else does: the kinds still
+  compare as they did, so code that switches on `KindCallout` or `KindMapEmbed` is
+  untouched.
+
+  The old names belonged to the application holding the pages rather than to this
+  library, and such an application, replacing these nodes with its own, was left
+  registering a kind under the name it wanted for them. Goldmark allows two kinds
+  spelled alike and neither misbehaves, so this cost no correctness — only that a
+  dump stopped saying which of the two you were looking at.
 
 ## 0.1.1 - 2026-09-13
 
@@ -63,11 +77,12 @@ Changes are documented here in the format of
 ### Fixed
 
 - A sign written outside ASCII in `corpus/rules.yaml` — a typographic minus, say —
-  was read a byte at a time and so went unrecognised here, while a port walking
-  characters would have honoured it. The signs the rules name today, `+` and `-`,
-  behave exactly as before; what changed is that the alphabet is now read the way
-  the file means it, so the ports cannot part company over an entry someone adds
-  to it later.
+  was read a byte at a time and so went unrecognised here, while a port of this
+  dialect to another language, walking characters rather than bytes, would have
+  honoured it. That file spells out which characters may open a coordinate, and the
+  two it names today, `+` and `-`, behave exactly as before; what changed is that
+  the list is read character by character the way the file means it, so two ports
+  cannot part company over a sign someone adds to it later.
 
 ## 0.1.0 - 2026-09-12
 
@@ -81,8 +96,9 @@ First release.
 - Callouts: a blockquote whose first line is exactly `[!NOTE]`, `[!TIP]`,
   `[!IMPORTANT]`, `[!WARNING]` or `[!CAUTION]`. A marker sharing its line with
   words, or written in lower case, leaves an ordinary quote.
-- Map embeds: `[!MAP]`, then a line holding latitude and longitude separated by a
-  comma, and whatever follows as the caption. A coordinate is an optional sign,
+- Map embeds: `[!MAP]` alone on the first line, as a callout marker must be, then a
+  line holding latitude and longitude separated by a comma, and whatever follows as
+  the caption. A coordinate is an optional sign,
   digits, and optionally a decimal point and more digits. It comes back as a string,
   digit for digit, because a coordinate rounded is a pin in the wrong street.
 - Links naming a node under `page:` or `block:`. The scheme comes back named and
@@ -100,10 +116,13 @@ First release.
 ### Worth knowing before you take it
 
 - Nothing here renders. A document carrying a callout or a map needs a renderer of
-  your own for `KindCallout` and `KindMapEmbed`; a goldmark without one cannot
-  convert it.
+  your own for `KindCallout` and `KindMapEmbed`, and a goldmark without one does
+  not fail politely: `Convert` panics with an index out of range the first time it
+  meets a node nobody registered a renderer for.
 - A callout inside a callout yields a single entry, the outer callout, and the
-  inner marker stays among its words. A map inside a callout yields two entries,
+  inner marker stays among its words. That holds however the inner one is written:
+  a second marker further down the same quote is words and nothing else, while a
+  quote nested inside the quote keeps its own blockquote in the tree, unclaimed. A map inside a callout yields two entries,
   the callout and the map.
 - An autolink is not reported: only a link written with brackets and a destination
   comes back.
