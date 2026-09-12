@@ -59,7 +59,10 @@ address to whoever serves it and an unknown one here.
 
 A callout inside a callout is one callout. The transformer stops at the first marker
 it matches and looks no further down that quote, so the inner marker stays part of
-the outer body.
+the outer body. That holds however the inner one is written, but the two shapes
+leave different trees: a second marker further down the same quote is words and
+nothing else, while a quote nested inside the quote keeps its own blockquote,
+standing and unclaimed.
 
 A map inside a callout is found, because the callout is made first and the map is
 looked for inside it afterwards. That order is a stated priority rather than an
@@ -104,6 +107,10 @@ spares you writing the six markers out a second time, not the walk.
 each scheme, can hold its tables against these instead of keeping a second copy that
 nothing compares. Both lists grow in a minor version, so read them rather than
 writing down what is in them today.
+
+The version is 0.x because the shape is still settling. One application reads this
+library, and nobody has written the same dialect in another language against the
+corpus; the second of those will have more to say about the API than the first.
 
 ## Use
 

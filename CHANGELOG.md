@@ -113,19 +113,5 @@ First release.
   cases that define it. They are meant to be read by an implementation in another
   language as much as by this one, which is what will keep the two answering alike.
 
-### Worth knowing before you take it
-
-- Nothing here renders. A document carrying a callout or a map needs a renderer of
-  your own for `KindCallout` and `KindMapEmbed`, and a goldmark without one does
-  not fail politely: `Convert` panics with an index out of range the first time it
-  meets a node nobody registered a renderer for.
-- A callout inside a callout yields a single entry, the outer callout, and the
-  inner marker stays among its words. That holds however the inner one is written:
-  a second marker further down the same quote is words and nothing else, while a
-  quote nested inside the quote keeps its own blockquote in the tree, unclaimed. A map inside a callout yields two entries,
-  the callout and the map.
-- An autolink is not reported: only a link written with brackets and a destination
-  comes back.
-- The version is 0.x because the shape is still settling. Nothing uses this library
-  yet, and nobody has written the same dialect in another language against the
-  corpus; both will have something to say about the API.
+What it will not do, what nesting yields and why the version is 0.x are standing
+properties rather than changes, and the README carries them.
