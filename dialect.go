@@ -59,6 +59,7 @@ func (d Dialect) Extensions() []goldmark.Extender {
 		extension.GFM,
 		&calloutExtension{classByMarker: d.calloutClassByMarker},
 		&mapEmbedExtension{marker: d.mapMarker, point: d.coordinate},
+		&declinedExtension{markers: d.Markers()},
 	}
 }
 

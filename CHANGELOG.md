@@ -27,6 +27,23 @@ versions and what that asks of you.
 Changes are documented here in the format of
 [Keep a Changelog](https://keepachangelog.com/).
 
+## 0.3.0 - 2026-09-13
+
+### Added
+
+- `DeclinedIn(context)`: the quotes this dialect turned down, one entry per quote
+  with the marker it carried. 0.2.0 named the two ways to arrive there and left the
+  finding to you, through `Markers()` and a walk of your own; this replaces that
+  walk. Doing it from outside meant writing the dialect's rule for what opens a
+  construct a second time, in your code, and two copies of a rule drift. Pass the
+  `parser.Context` you parsed with, which is the `Parser()` route rather than
+  `Recognise`; the README has it in full.
+- Four cases in the corpus pinning down where a coordinate stops being one: exponent
+  notation, a number ending on its point and one opening on it are refused, and a
+  run of digits too long for any float is still a coordinate, because the dialect
+  reads digits rather than parsing a number. Every port answers these now; 0.1.0
+  and 0.2.0 already behaved this way and nothing said it out loud.
+
 ## 0.2.0 - 2026-09-13
 
 ### Added

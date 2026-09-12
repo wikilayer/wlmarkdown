@@ -94,13 +94,24 @@ Which markers exist is not among the things a caller sets. That table is what ma
 the dialect this one rather than another, so `New()` is the only dialect there is.
 
 `Markers()` names every marker that opens a construct here, the five callout
-markers and `[!MAP]`, spelled the way a document spells them. It is there to be
-read against a parsed document: a blockquote still standing as a blockquote, whose
-first line is exactly one of these, is a construct the dialect declined to make —
-a map whose second line is missing or does not read as a pair of coordinates, or a
-callout written as a quote inside another callout's quote, whose inner blockquote
-stays standing. Reading that first line off the node is yours to do; the list
-spares you writing the six markers out a second time, not the walk.
+markers and `[!MAP]`, spelled the way a document spells them.
+
+When the dialect turns a quote down it leaves it a quote and says nothing: a map
+whose second line is missing or does not read as a pair of coordinates, or a
+callout written as a quote inside another callout's quote. `DeclinedIn` hands those
+back, one entry per quote with the marker it carried, so a host can write it to a
+log or show it to whoever wrote the page. Pass the context you parsed with:
+
+```go
+pc := parser.NewContext()
+md.Parser().Parse(text.NewReader(source), parser.WithContext(pc))
+for _, declined := range wlmarkdown.DeclinedIn(pc) {
+    log.Printf("%s was written, and nothing came of it", declined.Marker)
+}
+```
+
+Deciding that from outside would mean writing the dialect's own rule for what
+opens a construct a second time, in your code, where the two would drift.
 
 `Classes()` and `Schemes()` name the values that can come back in `Found.Class` and
 `Found.Scheme`, in sorted order. A host drawing an icon for each class, or resolving

@@ -183,6 +183,33 @@ cases:
       > 44.7866 20.4489
     found: []
 
+  - name: a coordinate written in exponent notation stays a quote
+    markdown: |
+      > [!MAP]
+      > 1e5, 20.4489
+    found: []
+
+  - name: a coordinate ending on its point stays a quote
+    markdown: |
+      > [!MAP]
+      > 44., 20.4489
+    found: []
+
+  - name: a coordinate opening on its point stays a quote
+    markdown: |
+      > [!MAP]
+      > .5, 20.4489
+    found: []
+
+  - name: a coordinate longer than a float can hold is still digits
+    markdown: |
+      > [!MAP]
+      > 44.78660000000000000000000000000000000000001, 20.4489
+    found:
+      - kind: map
+        lat: "44.78660000000000000000000000000000000000001"
+        lng: "20.4489"
+
   - name: a callout and a place in one document are both recognised
     markdown: |
       > [!NOTE]
