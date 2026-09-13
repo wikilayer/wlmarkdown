@@ -46,10 +46,11 @@ Changes are documented here in the format of
   The bound is the last place there is, not the first one missing: `-90, 180` is a
   point at the pole and stays a map. Four cases in `corpus/dialect.yaml` hold that
   line — a latitude past the pole, a longitude past the meridian, the pole itself,
-  and a run of digits too long for any float — so a port that draws any of them
-  differently goes red rather than surprising a reader. The last of the four is the
-  case 0.3.0 pinned as a coordinate: it still reads as one, digit for digit, and it
-  is no longer a place.
+  and a run of digits no float could hold — so a port that answers any of them
+  differently goes red rather than surprising a reader. Reading digits rather than
+  parsing a number is what 0.3.0 pinned and it has not changed: the coordinate it
+  named is inside the bound and is still a place. Length was never the question,
+  and now neither is a float's opinion of it.
 
 ## 0.4.0 - 2026-09-13
 
