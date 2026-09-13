@@ -6,6 +6,8 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
 	"github.com/wikilayer/wlmarkdown"
@@ -20,16 +22,13 @@ type writtenRules struct {
 func rules(t *testing.T) writtenRules {
 	t.Helper()
 	read, err := os.ReadFile("corpus/rules.yaml")
-	if err != nil {
-		t.Fatalf("the rules every port answers to are unreadable: %v", err)
-	}
+	require.NoError(t, err, "the rules every port answers to are unreadable")
+
 	var held writtenRules
-	if err := yaml.Unmarshal(read, &held); err != nil {
-		t.Fatalf("the rules do not parse: %v", err)
-	}
-	if len(held.CalloutClassByMarker) == 0 || held.MapMarker == "" || len(held.RefSchemes) == 0 {
-		t.Fatal("the rules are empty, so this test cannot fail")
-	}
+	require.NoError(t, yaml.Unmarshal(read, &held), "the rules do not parse")
+	require.NotEmpty(t, held.CalloutClassByMarker, "the rules are empty, so this test cannot fail")
+	require.NotEmpty(t, held.MapMarker, "the rules are empty, so this test cannot fail")
+	require.NotEmpty(t, held.RefSchemes, "the rules are empty, so this test cannot fail")
 	return held
 }
 
@@ -38,9 +37,9 @@ func TestEveryMarkerTheRulesNameCarriesItsClass(t *testing.T) {
 		t.Run(marker, func(t *testing.T) {
 			source := fmt.Sprintf("%s\n> Body.\n", "> "+marker)
 			found := wlmarkdown.New().Recognise([]byte(source))
-			if len(found) != 1 || found[0].Kind != "callout" || found[0].Class != class {
-				t.Errorf("%s should carry class %q, recognised %+v", marker, class, found)
-			}
+			require.Len(t, found, 1, "%s opened nothing", marker)
+			assert.Equal(t, "callout", found[0].Kind)
+			assert.Equal(t, class, found[0].Class, "%s should carry the class the rules give it", marker)
 		})
 	}
 }
@@ -54,10 +53,8 @@ func TestTheMarkersOnOfferAreEveryOneTheRulesName(t *testing.T) {
 	want = append(want, written.MapMarker)
 	slices.Sort(want)
 
-	if got := wlmarkdown.New().Markers(); !slices.Equal(got, want) {
-		t.Errorf("offered %v, the rules name %v; a host that wants to notice a marker "+
-			"nothing was made of has to keep its own list and drift", got, want)
-	}
+	assert.Equal(t, want, wlmarkdown.New().Markers(),
+		"a host that wants to notice a marker nothing was made of has to keep its own list and drift")
 }
 
 func TestTheClassesOnOfferAreTheOnesTheRulesName(t *testing.T) {
@@ -69,26 +66,21 @@ func TestTheClassesOnOfferAreTheOnesTheRulesName(t *testing.T) {
 	slices.Sort(want)
 	want = slices.Compact(want)
 
-	if got := wlmarkdown.New().Classes(); !slices.Equal(got, want) {
-		t.Errorf("offered %v, the rules name %v", got, want)
-	}
+	assert.Equal(t, want, wlmarkdown.New().Classes())
 }
 
 func TestTheSchemesOnOfferAreTheOnesTheRulesName(t *testing.T) {
 	want := slices.Clone(rules(t).RefSchemes)
 	slices.Sort(want)
 
-	if got := wlmarkdown.New().Schemes(); !slices.Equal(got, want) {
-		t.Errorf("offered %v, the rules name %v", got, want)
-	}
+	assert.Equal(t, want, wlmarkdown.New().Schemes())
 }
 
 func TestTheMarkerTheRulesNameOpensAPlace(t *testing.T) {
 	source := fmt.Sprintf("> %s\n> 44.7866, 20.4489\n", rules(t).MapMarker)
 	found := wlmarkdown.New().Recognise([]byte(source))
-	if len(found) != 1 || found[0].Kind != "map" {
-		t.Errorf("the map marker went unrecognised: %+v", found)
-	}
+	require.Len(t, found, 1, "the map marker went unrecognised")
+	assert.Equal(t, "map", found[0].Kind)
 }
 
 func TestEverySchemeTheRulesNameIsReadAsOne(t *testing.T) {
@@ -96,9 +88,9 @@ func TestEverySchemeTheRulesNameIsReadAsOne(t *testing.T) {
 		t.Run(scheme, func(t *testing.T) {
 			source := fmt.Sprintf("A [label](%s:1).\n", scheme)
 			found := wlmarkdown.New().Recognise([]byte(source))
-			if len(found) != 1 || found[0].Scheme != scheme || found[0].Destination != scheme+":1" {
-				t.Errorf("%s: should be read as a scheme, recognised %+v", scheme, found)
-			}
+			require.Len(t, found, 1, "%s: went unrecognised", scheme)
+			assert.Equal(t, scheme, found[0].Scheme)
+			assert.Equal(t, scheme+":1", found[0].Destination)
 		})
 	}
 }
