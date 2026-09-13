@@ -58,6 +58,14 @@ Changes are documented here in the format of
 - `corpus/dialect.yaml` gained a `declined` key per case, and new cases along with it.
   If you run the corpus yourself, a decoder that refuses unknown keys has to learn
   this one.
+- What `DeclinedIn` reports, said properly, because 0.2.0 named two ways to arrive
+  there and its own rule has always allowed three: a map whose second line does not
+  read as a point, a callout written inside another callout's quote, and a marker of
+  any kind inside an ordinary quote, which stops the dialect before it reads what is
+  under it. A point outside 90 or 180 is not among them — since 0.5.0 that is an
+  `Unreadable` block, something made rather than turned down, and this call has been
+  silent about it since. Nothing changed here in 0.6.0; the corpus now asks it of
+  both ports case by case, which is how the gap was found.
 - The minor moves with [the Swift port](https://github.com/wikilayer/wlmarkdown-swift),
   which fixes three answers of its own for this release. Between them these fixes
   close every difference the corpus can reach, and both ports now answer all of it
