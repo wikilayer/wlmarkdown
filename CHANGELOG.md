@@ -27,6 +27,30 @@ versions and what that asks of you.
 Changes are documented here in the format of
 [Keep a Changelog](https://keepachangelog.com/).
 
+## 0.5.0 - 2026-09-13
+
+### Changed
+
+- A point nowhere on Earth is no longer a place. `corpus/rules.yaml` now names how
+  far a coordinate may go, `90` and `180`, beside the alphabets it already spells
+  out, and both are compared digit by digit rather than through a float, so a number
+  too long for one is judged by the same rule. A quote written as a map whose point
+  is outside that comes back as `kind: unreadable` carrying the words as written,
+  and in the tree it is an `Unreadable` node rather than a `MapEmbed`.
+
+  Register a renderer for `KindUnreadable` alongside the two you already have. What
+  it looks like is yours, as a callout's colour is; that it is visible is the point.
+  Before this, `> [!MAP]\n> 999, 999` drew a map of a place the page does not name,
+  and the reader who wrote the coordinates had nothing to tell them so.
+
+  The bound is the last place there is, not the first one missing: `-90, 180` is a
+  point at the pole and stays a map. Four cases in `corpus/dialect.yaml` hold that
+  line — a latitude past the pole, a longitude past the meridian, the pole itself,
+  and a run of digits too long for any float — so a port that draws any of them
+  differently goes red rather than surprising a reader. The last of the four is the
+  case 0.3.0 pinned as a coordinate: it still reads as one, digit for digit, and it
+  is no longer a place.
+
 ## 0.4.0 - 2026-09-13
 
 ### Fixed

@@ -209,7 +209,7 @@ cases:
         lat: "-90"
         lng: "180"
 
-  - name: a coordinate too long to be a number is placed by its digits
+  - name: a coordinate too long to be a number is read by its digits and placed nowhere
     markdown: |
       > [!MAP]
       > 1000000000000000000000000000000, 20.4489
