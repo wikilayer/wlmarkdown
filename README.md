@@ -136,7 +136,7 @@ That list is what the corpus is written against, so every port of this library
 answers the same questions with the same words.
 
 To render, compose a goldmark of your own from the extenders and add a renderer for
-each of the dialect's node kinds, `KindCallout` and `KindMapEmbed`:
+each of the dialect's node kinds, `KindCallout`, `KindMapEmbed` and `KindUnreadable`:
 
 ```go
 md := goldmark.New(
@@ -144,13 +144,20 @@ md := goldmark.New(
     goldmark.WithRendererOptions(renderer.WithNodeRenderers(
         util.Prioritized(yourCalloutRenderer{}, 500),
         util.Prioritized(yourMapRenderer{}, 500),
+        util.Prioritized(yourUnreadableRenderer{}, 500),
     )),
 )
 ```
 
-Both renderers are yours to write, and a goldmark without them does not fail
-politely: `Convert` panics with an index out of range the first time it meets a
-node nobody registered a renderer for.
+All three are yours to write, and a goldmark without them does not fail politely:
+`Convert` panics with an index out of range the first time it meets a node nobody
+registered a renderer for.
+
+`Unreadable` is what a map whose point is nowhere on Earth comes back as, and it
+holds the words the quote was written with. Nothing on the node needs reading:
+render a wrapper that says these words could not be read and let the children
+render inside it. The only person who can fix such coordinates is the one who
+typed them, so they have to see them.
 
 The nodes are yours to replace as well. A host that hangs a localized title on a
 callout, or an embed URL on a map, does that in an AST transformer of its own, and
