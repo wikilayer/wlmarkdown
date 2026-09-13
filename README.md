@@ -40,6 +40,13 @@ else: no exponent, no hexadecimal, no infinity. Anything else leaves the quote a
 quote. They are handed on as the source wrote them, digit for digit, because
 rounding a coordinate moves the point.
 
+A latitude may go as far as 90 and a longitude as far as 180, the poles and the
+meridian included. Past that the pair is still read — it is digits, and the dialect
+read them — but there is nowhere to put it, so the quote becomes an `Unreadable`
+block carrying the words as they were written rather than a map of a place the page
+does not name. Only the person who typed those coordinates can fix them, which is
+the whole reason the words come back instead of vanishing.
+
 A link may name a node instead of a URL, under the scheme `page:` or `block:`:
 
 ```markdown

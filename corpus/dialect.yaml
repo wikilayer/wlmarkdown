@@ -445,6 +445,23 @@ cases:
     declined:
       - "[!MAP]"
 
+  - name: a place nested deeper than a callout's own children is still not its words
+    markdown: |
+      > [!NOTE]
+      > Look.
+      >
+      > - item
+      >
+      >   > [!MAP]
+      >   > 44.7866, 20.4489
+    found:
+      - kind: callout
+        class: note
+        text: Look. item
+      - kind: map
+        lat: "44.7866"
+        lng: "20.4489"
+
   - name: a callout inside an ordinary quote is not made either
     markdown: |
       > Plain quoted words.
