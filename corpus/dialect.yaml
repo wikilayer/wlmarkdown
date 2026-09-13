@@ -153,35 +153,47 @@ cases:
       > [!MAP]
       > Inf, NaN
     found: []
+    declined:
+      - "[!MAP]"
 
   - name: a number in exponent notation is not a point
     markdown: |
       > [!MAP]
       > 4.48e1, 20.47
     found: []
+    declined:
+      - "[!MAP]"
 
   - name: a number written for a machine is not a point
     markdown: |
       > [!MAP]
       > 0x1p-2, 20.47
     found: []
+    declined:
+      - "[!MAP]"
 
   - name: a map marker with no point under it stays a quote
     markdown: |
       > [!MAP]
       > Belgrade, the city centre
     found: []
+    declined:
+      - "[!MAP]"
 
   - name: a map marker alone stays a quote
     markdown: |
       > [!MAP]
     found: []
+    declined:
+      - "[!MAP]"
 
   - name: a point with no comma stays a quote
     markdown: |
       > [!MAP]
       > 44.7866 20.4489
     found: []
+    declined:
+      - "[!MAP]"
 
   - name: a latitude past the pole is written and cannot be placed
     markdown: |
@@ -217,23 +229,62 @@ cases:
       - kind: unreadable
         text: "[!MAP] 1000000000000000000000000000000, 20.4489"
 
+  - name: words written under a point that reads nowhere come back with it
+    markdown: |
+      > [!MAP]
+      > 999, 20.4489
+      >
+      > The street I meant is below.
+    found:
+      - kind: unreadable
+        text: "[!MAP] 999, 20.4489 The street I meant is below."
+
+  - name: a point that reads nowhere keeps the markdown its words were written in
+    markdown: |
+      > [!MAP]
+      > 999, 20.4489
+      > [the principle](block:50386)
+    found:
+      - kind: unreadable
+        text: "[!MAP] 999, 20.4489 [the principle](block:50386)"
+
+  - name: a point that reads nowhere inside a callout leaves the callout its own words
+    markdown: |
+      > [!NOTE]
+      > Where to find us.
+      >
+      > > [!MAP]
+      > > 999, 20.4489
+    found:
+      - kind: callout
+        class: note
+        text: Where to find us.
+      - kind: unreadable
+        text: "[!MAP] 999, 20.4489"
+
   - name: a coordinate written in exponent notation stays a quote
     markdown: |
       > [!MAP]
       > 1e5, 20.4489
     found: []
+    declined:
+      - "[!MAP]"
 
   - name: a coordinate ending on its point stays a quote
     markdown: |
       > [!MAP]
       > 44., 20.4489
     found: []
+    declined:
+      - "[!MAP]"
 
   - name: a coordinate opening on its point stays a quote
     markdown: |
       > [!MAP]
       > .5, 20.4489
     found: []
+    declined:
+      - "[!MAP]"
 
   - name: a coordinate longer than a float can hold is still digits
     markdown: |
@@ -391,6 +442,18 @@ cases:
       > > [!MAP]
       > > 44.7866, 20.4489
     found: []
+    declined:
+      - "[!MAP]"
+
+  - name: a callout inside an ordinary quote is not made either
+    markdown: |
+      > Plain quoted words.
+      >
+      > > [!TIP]
+      > > Inner.
+    found: []
+    declined:
+      - "[!TIP]"
 
   - name: a marker with a space after it is not a marker
     markdown: "> [!NOTE] \n> Body.\n"
@@ -407,6 +470,8 @@ cases:
       - kind: callout
         class: note
         text: Outer. [!TIP] Inner.
+    declined:
+      - "[!TIP]"
 
   - name: a marker below the first line is not a marker
     markdown: |
@@ -506,6 +571,25 @@ cases:
       - kind: callout
         class: note
         text: "one two"
+
+  - name: a caption written outside ASCII keeps its letters whole
+    markdown: |
+      > [!MAP]
+      > 44.7866, 20.4489
+      > Кнез Михаилова, Београд
+    found:
+      - kind: map
+        lat: "44.7866"
+        lng: "20.4489"
+        caption: "Кнез Михаилова, Београд"
+
+  - name: a caption opening on tabs keeps its tail
+    markdown: "> [!MAP]\n> 44.7866, 20.4489\n> \t\tКнез Михаилова\n"
+    found:
+      - kind: map
+        lat: "44.7866"
+        lng: "20.4489"
+        caption: "Кнез Михаилова"
 
   - name: a caption stays the markdown it was written as
     markdown: |

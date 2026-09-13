@@ -43,7 +43,7 @@ func (d Dialect) Recognise(source []byte) []Found {
 		case *Unreadable:
 			found = append(found, Found{
 				Kind: "unreadable",
-				Text: d.plainText(spoken, source),
+				Text: d.asWritten(spoken, source),
 			})
 			return ast.WalkSkipChildren
 		case *ast.Link:
@@ -70,9 +70,30 @@ func (d Dialect) schemeIn(destination string) string {
 	return ""
 }
 
+func (d Dialect) asWritten(from ast.Node, source []byte) string {
+	var written strings.Builder
+	for child := from.FirstChild(); child != nil; child = child.NextSibling() {
+		lines := child.Lines()
+		if lines == nil || lines.Len() == 0 {
+			written.WriteString(d.plainText(child, source))
+			written.WriteString(" ")
+			continue
+		}
+		for i := 0; i < lines.Len(); i++ {
+			segment := lines.At(i)
+			written.Write(segment.Value(source))
+			written.WriteString(" ")
+		}
+	}
+	return d.squeezed(written.String())
+}
+
 func (d Dialect) plainText(from ast.Node, source []byte) string {
 	var written strings.Builder
 	walk(from, func(n ast.Node) ast.WalkStatus {
+		if _, made := n.(*Unreadable); made && n != from {
+			return ast.WalkSkipChildren
+		}
 		if n.Type() == ast.TypeBlock {
 			written.WriteString(" ")
 		}

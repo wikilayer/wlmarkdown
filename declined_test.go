@@ -3,6 +3,7 @@ package wlmarkdown_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
@@ -15,28 +16,11 @@ func declinedIn(t *testing.T, source string) []wlmarkdown.Declined {
 	md := goldmark.New(goldmark.WithExtensions(wlmarkdown.New().Extensions()...))
 	pc := parser.NewContext()
 	md.Parser().Parse(text.NewReader([]byte(source)), parser.WithContext(pc))
-	return wlmarkdown.DeclinedIn(pc)
-}
-
-func TestAPlaceWhoseCoordinatesDoNotReadIsReportedDeclined(t *testing.T) {
-	declined := declinedIn(t, "> [!MAP]\n> somewhere near the river\n")
-	if len(declined) != 1 || declined[0].Marker != "[!MAP]" {
-		t.Errorf("the author cannot see why no map appeared, and neither can the host: %+v", declined)
+	held := wlmarkdown.DeclinedIn(pc)
+	if held == nil {
+		return []wlmarkdown.Declined{}
 	}
-}
-
-func TestACalloutInsideACalloutIsReportedDeclined(t *testing.T) {
-	declined := declinedIn(t, "> [!NOTE]\n> Outer.\n>\n> > [!TIP]\n> > Inner.\n")
-	if len(declined) != 1 || declined[0].Marker != "[!TIP]" {
-		t.Errorf("the inner quote stands unclaimed and should say so: %+v", declined)
-	}
-}
-
-func TestWhatTheDialectMadeIsNotReportedDeclined(t *testing.T) {
-	declined := declinedIn(t, "> [!NOTE]\n> Body.\n\n> [!MAP]\n> 44.7866, 20.4489\n")
-	if len(declined) != 0 {
-		t.Errorf("both were made, so there is nothing to report: %+v", declined)
-	}
+	return held
 }
 
 func TestASecondParseDoesNotInheritTheFirstsRefusals(t *testing.T) {
@@ -46,14 +30,6 @@ func TestASecondParseDoesNotInheritTheFirstsRefusals(t *testing.T) {
 	md.Parser().Parse(text.NewReader([]byte("> [!MAP]\n> nowhere near a point\n")), parser.WithContext(pc))
 	md.Parser().Parse(text.NewReader([]byte("Nothing here at all.\n")), parser.WithContext(pc))
 
-	if declined := wlmarkdown.DeclinedIn(pc); len(declined) != 0 {
-		t.Errorf("the second document turned nothing down and is told otherwise: %+v", declined)
-	}
-}
-
-func TestAMarkerSharingItsLineIsNotReportedDeclined(t *testing.T) {
-	declined := declinedIn(t, "> [!NOTE] see below\n> Body.\n")
-	if len(declined) != 0 {
-		t.Errorf("that quote was never a candidate, so calling it declined cries wolf: %+v", declined)
-	}
+	assert.Empty(t, wlmarkdown.DeclinedIn(pc),
+		"the second document turned nothing down and is told otherwise")
 }
