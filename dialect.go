@@ -23,9 +23,11 @@ type Dialect struct {
 }
 
 type coordinate struct {
-	Signs  string `yaml:"signs"`
-	Digits string `yaml:"digits"`
-	Point  string `yaml:"point"`
+	Signs           string `yaml:"signs"`
+	Digits          string `yaml:"digits"`
+	Point           string `yaml:"point"`
+	LatitudeWithin  string `yaml:"latitude_within"`
+	LongitudeWithin string `yaml:"longitude_within"`
 }
 
 type rules struct {

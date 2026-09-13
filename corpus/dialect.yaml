@@ -183,6 +183,40 @@ cases:
       > 44.7866 20.4489
     found: []
 
+  - name: a latitude past the pole is written and cannot be placed
+    markdown: |
+      > [!MAP]
+      > 999, 20.4489
+    found:
+      - kind: unreadable
+        text: "[!MAP] 999, 20.4489"
+
+  - name: a longitude past the meridian is written and cannot be placed
+    markdown: |
+      > [!MAP]
+      > 44.7866, -200.5
+      > Nowhere.
+    found:
+      - kind: unreadable
+        text: "[!MAP] 44.7866, -200.5 Nowhere."
+
+  - name: a coordinate at the pole itself is a place
+    markdown: |
+      > [!MAP]
+      > -90, 180
+    found:
+      - kind: map
+        lat: "-90"
+        lng: "180"
+
+  - name: a coordinate too long to be a number is placed by its digits
+    markdown: |
+      > [!MAP]
+      > 1000000000000000000000000000000, 20.4489
+    found:
+      - kind: unreadable
+        text: "[!MAP] 1000000000000000000000000000000, 20.4489"
+
   - name: a coordinate written in exponent notation stays a quote
     markdown: |
       > [!MAP]

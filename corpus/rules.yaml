@@ -11,6 +11,8 @@ coordinate:
   signs: "+-"
   digits: "0123456789"
   point: "."
+  latitude_within: "90"
+  longitude_within: "180"
 
 blanks: " \t\n\v\f\r"
 

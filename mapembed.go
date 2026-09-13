@@ -54,18 +54,27 @@ type mapEmbedTransformer struct {
 type mapEmbedTarget struct {
 	quote *ast.Blockquote
 	place MapEmbed
+	how   howItReads
 }
 
 func (t *mapEmbedTransformer) Transform(doc *ast.Document, reader text.Reader, _ parser.Context) {
 	source := reader.Source()
 	for _, found := range mapEmbedTargets(doc, source, t.marker, t.point) {
-		place := &MapEmbed{
+		var made ast.Node = &MapEmbed{
 			Lat:     found.place.Lat,
 			Lng:     found.place.Lng,
 			Caption: found.place.Caption,
 		}
+		if found.how == aPlaceNowhere {
+			written := &Unreadable{}
+			for child := found.quote.FirstChild(); child != nil; child = found.quote.FirstChild() {
+				found.quote.RemoveChild(found.quote, child)
+				written.AppendChild(written, child)
+			}
+			made = written
+		}
 		if parent := found.quote.Parent(); parent != nil {
-			parent.ReplaceChild(parent, found.quote, place)
+			parent.ReplaceChild(parent, found.quote, made)
 		}
 	}
 }
@@ -82,11 +91,11 @@ func mapEmbedTargets(
 		if !ok {
 			return ast.WalkContinue
 		}
-		place, ok := placeInQuote(quote, source, marker, point)
-		if !ok {
+		place, how := placeInQuote(quote, source, marker, point)
+		if how == noPlaceWritten {
 			return ast.WalkSkipChildren
 		}
-		targets = append(targets, mapEmbedTarget{quote: quote, place: place})
+		targets = append(targets, mapEmbedTarget{quote: quote, place: place, how: how})
 		return ast.WalkSkipChildren
 	})
 	return targets
@@ -97,25 +106,25 @@ func placeInQuote(
 	source []byte,
 	marker string,
 	point coordinate,
-) (MapEmbed, bool) {
+) (MapEmbed, howItReads) {
 	const markerAndCoordinates = 2
 
 	paragraph, ok := quote.FirstChild().(*ast.Paragraph)
 	if !ok {
-		return MapEmbed{}, false
+		return MapEmbed{}, noPlaceWritten
 	}
 	lines := paragraph.Lines()
 	if lines.Len() < markerAndCoordinates {
-		return MapEmbed{}, false
+		return MapEmbed{}, noPlaceWritten
 	}
 	if line(lines.At(0), source) != marker {
-		return MapEmbed{}, false
+		return MapEmbed{}, noPlaceWritten
 	}
-	lat, lng, ok := coordinates(line(lines.At(1), source), point)
-	if !ok {
-		return MapEmbed{}, false
+	lat, lng, how := coordinates(line(lines.At(1), source), point)
+	if how == noPlaceWritten {
+		return MapEmbed{}, noPlaceWritten
 	}
-	return MapEmbed{Lat: lat, Lng: lng, Caption: caption(paragraph, source)}, true
+	return MapEmbed{Lat: lat, Lng: lng, Caption: caption(paragraph, source)}, how
 }
 
 func caption(paragraph *ast.Paragraph, source []byte) string {
@@ -132,19 +141,46 @@ func caption(paragraph *ast.Paragraph, source []byte) string {
 	return strings.Join(said, " ")
 }
 
-func coordinates(spoken string, written coordinate) (lat, lng string, ok bool) {
+type howItReads int
+
+const (
+	noPlaceWritten howItReads = iota
+	aPlace
+	aPlaceNowhere
+)
+
+func coordinates(spoken string, written coordinate) (lat, lng string, how howItReads) {
 	const latitudeAndLongitude = 2
 
 	parts := strings.SplitN(spoken, ",", latitudeAndLongitude)
 	if len(parts) != latitudeAndLongitude {
-		return "", "", false
+		return "", "", noPlaceWritten
 	}
 	lat = strings.TrimSpace(parts[0])
 	lng = strings.TrimSpace(parts[1])
 	if !written.reads(lat) || !written.reads(lng) {
-		return "", "", false
+		return "", "", noPlaceWritten
 	}
-	return lat, lng, true
+	if !written.within(lat, written.LatitudeWithin) ||
+		!written.within(lng, written.LongitudeWithin) {
+		return lat, lng, aPlaceNowhere
+	}
+	return lat, lng, aPlace
+}
+
+func (c coordinate) within(spoken, bound string) bool {
+	whole, fraction, pointed := strings.Cut(strings.TrimLeft(spoken, c.Signs), c.Point)
+	whole = strings.TrimLeft(whole, "0")
+	if whole == "" {
+		return true
+	}
+	if len(whole) != len(bound) {
+		return len(whole) < len(bound)
+	}
+	if whole != bound {
+		return whole < bound
+	}
+	return !pointed || strings.Trim(fraction, "0") == ""
 }
 
 func (c coordinate) reads(spoken string) bool {

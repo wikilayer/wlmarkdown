@@ -40,6 +40,12 @@ func (d Dialect) Recognise(source []byte) []Found {
 				Caption: spoken.Caption,
 			})
 			return ast.WalkSkipChildren
+		case *Unreadable:
+			found = append(found, Found{
+				Kind: "unreadable",
+				Text: d.plainText(spoken, source),
+			})
+			return ast.WalkSkipChildren
 		case *ast.Link:
 			destination := string(spoken.Destination)
 			found = append(found, Found{
