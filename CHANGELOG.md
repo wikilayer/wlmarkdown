@@ -17,17 +17,22 @@ colour it gets, which address `page:home` resolves to: a web page answers each o
 those one way and a phone app another, so each belongs to the application holding
 the pages rather than to a parser.
 
-Signatures and fields are not repeated here: the
-[package reference](https://pkg.go.dev/github.com/wikilayer/wlmarkdown) carries
-those, and the README an example of each, including what the two files under
+An entry names the call or the field it is about and no more; the
+[package reference](https://pkg.go.dev/github.com/wikilayer/wlmarkdown) carries the
+signatures, and the README an example of each, including what the two files under
 `corpus/` hold. Which versions of goldmark and of Go it is built against is in
 `go.mod`, where it cannot go stale. This file says only what changed between
 versions and what that asks of you.
 
-The version is 0.x because the shape is still settling: every reader of this library
-so far has moved something in the API rather than working around it, and until a
-release passes with nobody asking for anything, a minor may still change an answer
-you relied on. Read the entry before taking one.
+The version is 0.x because the shape is still settling: every application built on
+this library so far has asked for something in the API rather than working around
+its absence, so a minor may still change an answer you relied on. Read the entry
+before taking one.
+
+[The Swift port](https://github.com/wikilayer/wlmarkdown-swift) answers the same
+corpus, and the two agree on all of it. One difference lies outside what the corpus
+can ask: a bare URL is a link here and plain words there, because swift-markdown
+offers no way to switch linkifying on. That port's changelog carries the same note.
 
 Changes are documented here in the format of
 [Keep a Changelog](https://keepachangelog.com/).
@@ -46,6 +51,20 @@ Changes are documented here in the format of
   know what it can meet there. A later minor may add a kind; none already in the
   list will change what it means.
 
+### Changed
+
+- The corpus asks a second question of every case: `declined`, the markers of the
+  quotes the dialect made nothing of, spelled as a document spells them —
+  `[!MAP]`, `[!NOTE]`. A case that names no marker is saying that nothing was turned
+  down, so the question is asked of every case rather than only of the ones that
+  answer it out loud. If you run `corpus/dialect.yaml` yourself, read the new key or
+  ignore it; nothing else in the file moved.
+- The minor moves with [the Swift port](https://github.com/wikilayer/wlmarkdown-swift),
+  which fixes three answers of its own for this release. Between them these fixes
+  close every difference the corpus can reach, and both ports now answer all of it
+  alike. Matching major and minor said that much from 0.4.0 on and were wrong to;
+  what makes it true now is that the corpus asks about what was turned down as well.
+
 ### Fixed
 
 - The words of an `Unreadable` block come back as the source wrote them.
@@ -56,12 +75,21 @@ Changes are documented here in the format of
   > [the street](page:1)
   ```
 
-  handed back `[!MAP] 999, 20 the street`, the link flattened to its text; it now
-  hands back `[!MAP] 999, 20 [the street](page:1)`. The marker and the coordinates
-  are part of those words on purpose: the block exists to show the author what they
-  typed. **If you print that text as plain text, it now carries markdown** — a
-  caption has always come back this way, and the two now match. The Swift port reads
-  the source directly and never had this to fix.
+  `Found.Text` on the `unreadable` entry held `[!MAP] 999, 20 the street`, the link
+  flattened to its text; it now holds `[!MAP] 999, 20 [the street](page:1)`. The
+  marker and the coordinates are part of those words on purpose: the block exists to
+  show the author what they typed.
+
+  **This is a breaking change for anyone printing that text.** It is markdown now,
+  so draw it through a markdown renderer, or escape it before it reaches the page —
+  printed raw it shows the reader brackets and parentheses, and printed as HTML it
+  hands whatever the author typed to the browser. A caption has always come back this
+  way, and the two now match. In the tree the same words are the node's own children
+  and always were; nothing there changed.
+
+  The Swift port reads the source directly and never had this half to fix. Its own
+  words stopped at the first paragraph of the quote instead, which its changelog
+  covers.
 - A callout's `Found.Text` no longer carries the words of an unreadable map written
   inside it. For
 
@@ -75,22 +103,9 @@ Changes are documented here in the format of
 
   the callout said `Where to find us. [!MAP] 999, 20` and now says `Where to find
   us.`; those words arrive in the `unreadable` entry that follows it, where a working
-  map's have always arrived. Nothing moves in the tree: the block is still a child of
-  the callout and renders where it stands.
-
-### Changed
-
-- The corpus asks a second question of every case: `declined`, the markers of the
-  quotes the dialect made nothing of, spelled as a document spells them —
-  `[!MAP]`, `[!NOTE]`. A case with no such key says nothing was turned down, so every
-  case asks it. Both ports read this file, and this answer had drifted between them
-  unnoticed, which is why it belongs here rather than in each port's own tests.
-- The minor moves with [the Swift port](https://github.com/wikilayer/wlmarkdown-swift),
-  which fixes two answers of its own for this release. Between them the four fixes
-  close every difference the corpus can reach: both ports now answer all of it alike,
-  and the Swift changelog names the one difference that is left, which no case can
-  reach. Matching major and minor said that much from 0.4.0 on and were wrong to;
-  what makes it true now is the corpus asking about `declined` as well.
+  map's have always arrived. A search index or a preview built from callout text gets
+  shorter here. The tree is unchanged: the block is still a child of the callout and
+  renders where it stands.
 
 ## 0.5.0 - 2026-09-13
 
@@ -113,9 +128,10 @@ Changes are documented here in the format of
   line — a latitude past the pole, a longitude past the meridian, the pole itself,
   and a run of digits no float could hold — so a port that answers any of them
   differently goes red rather than surprising a reader. Reading digits rather than
-  parsing a number is what 0.3.0 pinned and it has not changed: the coordinate it
-  named is inside the bound and is still a place. Length was never the question,
-  and now neither is a float's opinion of it.
+  parsing a number is what 0.3.0 pinned, and that has not changed: the run of digits
+  too long for any float that it named is inside the bound and is still a place. How
+  long a coordinate is was never the question, and a float's opinion of it is not one
+  either.
 
 ## 0.4.0 - 2026-09-13
 
@@ -237,5 +253,5 @@ First release.
   cases that define it. They are meant to be read by an implementation in another
   language as much as by this one, which is what will keep the two answering alike.
 
-What it will not do, what nesting yields and why the version is 0.x are standing
-properties rather than changes, and the README carries them.
+What it will not do and what nesting yields are standing properties rather than
+changes, and the README carries them.
