@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"gopkg.in/yaml.v3"
@@ -88,6 +89,10 @@ func (d Dialect) Schemes() []string {
 	schemes := slices.Clone(d.refSchemes)
 	slices.Sort(schemes)
 	return schemes
+}
+
+func Kinds() []ast.NodeKind {
+	return []ast.NodeKind{KindCallout, KindMapEmbed, KindUnreadable}
 }
 
 func (d Dialect) Parser() parser.Parser {

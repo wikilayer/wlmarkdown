@@ -3,6 +3,8 @@ package wlmarkdown_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/parser"
@@ -36,15 +38,14 @@ func TestAHostTransformerAtTwoHundredMeetsTheDialectsNodes(t *testing.T) {
 		)),
 	)
 
-	source := "> [!NOTE]\n> Where it happened.\n>\n> > [!MAP]\n> > 44.7866, 20.4489\n"
+	source := "> [!NOTE]\n> Where it happened.\n>\n> > [!MAP]\n> > 44.7866, 20.4489\n" +
+		"\n> [!MAP]\n> 999, 20.4489\n"
 	md.Parser().Parse(text.NewReader([]byte(source)))
 
-	if !recorded.kinds[wlmarkdown.KindCallout] {
-		t.Errorf("a transformer at priority %d met no callout, so a host cannot dress one there",
-			afterTheDialect)
-	}
-	if !recorded.kinds[wlmarkdown.KindMapEmbed] {
-		t.Errorf("a transformer at priority %d met no map, so a host cannot dress one there",
-			afterTheDialect)
+	require.NotEmpty(t, wlmarkdown.Kinds(), "with no kinds on offer this test cannot fail")
+	for _, kind := range wlmarkdown.Kinds() {
+		assert.True(t, recorded.kinds[kind],
+			"a transformer at priority %d met no %s, so a host cannot dress one there",
+			afterTheDialect, kind)
 	}
 }
