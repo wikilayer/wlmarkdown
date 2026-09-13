@@ -44,21 +44,20 @@ Changes are documented here in the format of
 - `Kinds()` hands back the `ast.NodeKind` of every node this dialect builds: today
   `KindCallout`, `KindMapEmbed` and `KindUnreadable`. A host composing its own
   goldmark registers a renderer per kind, and a kind it misses is not a missing box
-  but a panic on the first page carrying that construct. Hold your registrations
-  against this list and a kind added in a later minor is a red test rather than a
-  broken page. A host that instead replaces these nodes with its own, from a
+  but a panic on the first page carrying that construct. 0.5.0 asked you to register
+  one for `KindUnreadable` and did not say that much: if you took that release and
+  did not, the first unreadable point a reader writes takes the page down. Hold your
+  registrations against this list and a kind added in a later minor is a red test
+  rather than a broken page. A host that instead replaces these nodes with its own, from a
   transformer at priority 200 or above as 0.1.1 describes, reads the same list to
   know what it can meet there. A later minor may add a kind; none already in the
   list will change what it means.
 
 ### Changed
 
-- The corpus asks a second question of every case: `declined`, the markers of the
-  quotes the dialect made nothing of, spelled as a document spells them —
-  `[!MAP]`, `[!NOTE]`. A case that names no marker is saying that nothing was turned
-  down, so the question is asked of every case rather than only of the ones that
-  answer it out loud. If you run `corpus/dialect.yaml` yourself, read the new key or
-  ignore it; nothing else in the file moved.
+- `corpus/dialect.yaml` gained a `declined` key per case, and new cases along with it.
+  If you run the corpus yourself, a decoder that refuses unknown keys has to learn
+  this one.
 - The minor moves with [the Swift port](https://github.com/wikilayer/wlmarkdown-swift),
   which fixes three answers of its own for this release. Between them these fixes
   close every difference the corpus can reach, and both ports now answer all of it
@@ -67,7 +66,8 @@ Changes are documented here in the format of
 
 ### Fixed
 
-- The words of an `Unreadable` block come back as the source wrote them.
+- **Breaking for anyone printing it:** the words of an `Unreadable` block keep the
+  markdown they were written in.
 
   ```
   > [!MAP]
@@ -76,20 +76,21 @@ Changes are documented here in the format of
   ```
 
   `Found.Text` on the `unreadable` entry held `[!MAP] 999, 20 the street`, the link
-  flattened to its text; it now holds `[!MAP] 999, 20 [the street](page:1)`. The
-  marker and the coordinates are part of those words on purpose: the block exists to
-  show the author what they typed.
+  flattened to its text; it now holds `[!MAP] 999, 20 [the street](page:1)`. It is
+  one line either way: the quote's lines arrive joined by a single space with every
+  run of blanks squeezed to one, as a callout's words always have. The marker and the
+  coordinates are part of them on purpose, because the block exists to show the author
+  what they typed.
 
-  **This is a breaking change for anyone printing that text.** It is markdown now,
-  so draw it through a markdown renderer, or escape it before it reaches the page —
+  Draw that text through a markdown renderer, or escape it before it reaches the page:
   printed raw it shows the reader brackets and parentheses, and printed as HTML it
   hands whatever the author typed to the browser. A caption has always come back this
   way, and the two now match. In the tree the same words are the node's own children
   and always were; nothing there changed.
 
-  The Swift port reads the source directly and never had this half to fix. Its own
-  words stopped at the first paragraph of the quote instead, which its changelog
-  covers.
+  The Swift port reads the source directly and never lost markdown this way. What it
+  lost instead was everything below the first paragraph of the quote, which its own
+  changelog covers.
 - A callout's `Found.Text` no longer carries the words of an unreadable map written
   inside it. For
 
