@@ -64,8 +64,9 @@ Changes are documented here in the format of
   any kind inside an ordinary quote, which stops the dialect before it reads what is
   under it. A point outside 90 or 180 is not among them — since 0.5.0 that is an
   `Unreadable` block, something made rather than turned down, and this call has been
-  silent about it since. Nothing changed here in 0.6.0; the corpus now asks it of
-  both ports case by case, which is how the gap was found.
+  silent about it since. Nothing changed here in 0.6.0: the call answered this way
+  before the entry described it correctly, and the corpus now asks the same of both
+  ports case by case.
 - The minor moves with [the Swift port](https://github.com/wikilayer/wlmarkdown-swift),
   which fixes three answers of its own for this release. Between them these fixes
   close every difference the corpus can reach, and both ports now answer all of it
