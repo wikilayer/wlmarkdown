@@ -27,6 +27,23 @@ versions and what that asks of you.
 Changes are documented here in the format of
 [Keep a Changelog](https://keepachangelog.com/).
 
+## 0.4.0 - 2026-09-13
+
+### Fixed
+
+- `DeclinedIn` no longer answers a second document with the first one's refusals.
+  The refusals were written into the parse context only when there were any, so a
+  context parsed with twice kept what the earlier document turned down. Build a
+  fresh context per parse if you like; you no longer have to.
+
+### Changed
+
+- The version moves with the Swift port, which is fixing a difference of its own at
+  the same time. Matching major and minor say the two ports answer the corpus alike,
+  which is what the corpus is run on both sides for, and they say it only while they
+  move together. They do not promise more than the corpus reaches: the Swift port's
+  changelog names the differences it cannot.
+
 ## 0.3.0 - 2026-09-13
 
 ### Added

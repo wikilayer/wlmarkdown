@@ -39,6 +39,18 @@ func TestWhatTheDialectMadeIsNotReportedDeclined(t *testing.T) {
 	}
 }
 
+func TestASecondParseDoesNotInheritTheFirstsRefusals(t *testing.T) {
+	md := goldmark.New(goldmark.WithExtensions(wlmarkdown.New().Extensions()...))
+	pc := parser.NewContext()
+
+	md.Parser().Parse(text.NewReader([]byte("> [!MAP]\n> nowhere near a point\n")), parser.WithContext(pc))
+	md.Parser().Parse(text.NewReader([]byte("Nothing here at all.\n")), parser.WithContext(pc))
+
+	if declined := wlmarkdown.DeclinedIn(pc); len(declined) != 0 {
+		t.Errorf("the second document turned nothing down and is told otherwise: %+v", declined)
+	}
+}
+
 func TestAMarkerSharingItsLineIsNotReportedDeclined(t *testing.T) {
 	declined := declinedIn(t, "> [!NOTE] see below\n> Body.\n")
 	if len(declined) != 0 {

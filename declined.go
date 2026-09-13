@@ -60,7 +60,5 @@ func (t *declinedTransformer) Transform(doc *ast.Document, reader text.Reader, p
 		return ast.WalkContinue
 	})
 
-	if len(declined) > 0 {
-		pc.Set(declinedKey, declined)
-	}
+	pc.Set(declinedKey, declined)
 }
