@@ -24,8 +24,73 @@ those, and the README an example of each, including what the two files under
 `go.mod`, where it cannot go stale. This file says only what changed between
 versions and what that asks of you.
 
+The version is 0.x because the shape is still settling: every reader of this library
+so far has moved something in the API rather than working around it, and until a
+release passes with nobody asking for anything, a minor may still change an answer
+you relied on. Read the entry before taking one.
+
 Changes are documented here in the format of
 [Keep a Changelog](https://keepachangelog.com/).
+
+## 0.6.0 - 2026-09-13
+
+### Added
+
+- `Kinds()` hands back the `ast.NodeKind` of every node this dialect builds: today
+  `KindCallout`, `KindMapEmbed` and `KindUnreadable`. A host composing its own
+  goldmark registers a renderer per kind, and a kind it misses is not a missing box
+  but a panic on the first page carrying that construct. Hold your registrations
+  against this list and a kind added in a later minor is a red test rather than a
+  broken page. A host that instead replaces these nodes with its own, from a
+  transformer at priority 200 or above as 0.1.1 describes, reads the same list to
+  know what it can meet there. A later minor may add a kind; none already in the
+  list will change what it means.
+
+### Fixed
+
+- The words of an `Unreadable` block come back as the source wrote them.
+
+  ```
+  > [!MAP]
+  > 999, 20
+  > [the street](page:1)
+  ```
+
+  handed back `[!MAP] 999, 20 the street`, the link flattened to its text; it now
+  hands back `[!MAP] 999, 20 [the street](page:1)`. The marker and the coordinates
+  are part of those words on purpose: the block exists to show the author what they
+  typed. **If you print that text as plain text, it now carries markdown** — a
+  caption has always come back this way, and the two now match. The Swift port reads
+  the source directly and never had this to fix.
+- A callout's `Found.Text` no longer carries the words of an unreadable map written
+  inside it. For
+
+  ```
+  > [!NOTE]
+  > Where to find us.
+  >
+  > > [!MAP]
+  > > 999, 20
+  ```
+
+  the callout said `Where to find us. [!MAP] 999, 20` and now says `Where to find
+  us.`; those words arrive in the `unreadable` entry that follows it, where a working
+  map's have always arrived. Nothing moves in the tree: the block is still a child of
+  the callout and renders where it stands.
+
+### Changed
+
+- The corpus asks a second question of every case: `declined`, the markers of the
+  quotes the dialect made nothing of, spelled as a document spells them —
+  `[!MAP]`, `[!NOTE]`. A case with no such key says nothing was turned down, so every
+  case asks it. Both ports read this file, and this answer had drifted between them
+  unnoticed, which is why it belongs here rather than in each port's own tests.
+- The minor moves with [the Swift port](https://github.com/wikilayer/wlmarkdown-swift),
+  which fixes two answers of its own for this release. Between them the four fixes
+  close every difference the corpus can reach: both ports now answer all of it alike,
+  and the Swift changelog names the one difference that is left, which no case can
+  reach. Matching major and minor said that much from 0.4.0 on and were wrong to;
+  what makes it true now is the corpus asking about `declined` as well.
 
 ## 0.5.0 - 2026-09-13
 

@@ -126,9 +126,10 @@ each scheme, can hold its tables against these instead of keeping a second copy 
 nothing compares. Both lists grow in a minor version, so read them rather than
 writing down what is in them today.
 
-The version is 0.x because the shape is still settling. One application reads this
-library, and nobody has written the same dialect in another language against the
-corpus; the second of those will have more to say about the API than the first.
+The version is 0.x because the shape is still settling. Two applications read this
+library and one port answers the same corpus in Swift, and each of the three has
+moved something in this API rather than working around it; until a release passes
+with none of them asking for anything, the shape is not settled.
 
 ## Use
 
