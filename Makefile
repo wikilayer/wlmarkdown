@@ -5,7 +5,7 @@ COMMENTCENSOR_VERSION ?= v0.3.1
 COMMENTCENSOR_ENV = .build/commentcensor
 COMMENTCENSOR = $(COMMENTCENSOR_ENV)/bin/commentcensor
 
-.PHONY: install-tools format lint comments test-build test build
+.PHONY: install-tools format lint comments test-build test build release
 
 install-tools:
 	go install honnef.co/go/tools/cmd/staticcheck@$(STATICCHECK_VERSION)
@@ -32,3 +32,7 @@ test:
 
 build: lint test-build test
 	go build ./...
+
+release: build
+	@test -n "$(VERSION)" || (echo "usage: make release VERSION=0.7.0" && exit 1)
+	gh release create "v$(VERSION)" --title "v$(VERSION)" --generate-notes --target main
