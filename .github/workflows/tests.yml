@@ -20,5 +20,8 @@ jobs:
           go-version-file: go.mod
           cache: true
 
+      - name: Install tools
+        run: make install-tools
+
       - name: Build
         run: make build

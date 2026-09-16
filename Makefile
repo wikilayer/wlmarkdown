@@ -1,6 +1,13 @@
 .DEFAULT_GOAL := build
 
-.PHONY: format lint comments test-build test build
+STATICCHECK_VERSION ?= v0.8.0
+COMMENTCENSOR_VERSION ?= v0.3.0
+
+.PHONY: install-tools format lint comments test-build test build
+
+install-tools:
+	go install honnef.co/go/tools/cmd/staticcheck@$(STATICCHECK_VERSION)
+	python3 -m pip install --quiet git+https://github.com/botforge-pro/commentcensor.git@$(COMMENTCENSOR_VERSION)
 
 format:
 	gofmt -w .
