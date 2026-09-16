@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := build
 
 STATICCHECK_VERSION ?= v0.8.0
-COMMENTCENSOR_VERSION ?= v0.3.0
+COMMENTCENSOR_VERSION ?= v0.3.1
 
 .PHONY: install-tools format lint comments test-build test build
 
