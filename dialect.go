@@ -53,6 +53,7 @@ var read = sync.OnceValue(func() Dialect {
 	}
 })
 
+// New returns the WikiLayer markdown dialect.
 func New() Dialect {
 	return read()
 }

@@ -1,0 +1,78 @@
+cases:
+  - name: plain prose
+    markdown: Markdown is a widely-supported plain-text format.
+    plain: Markdown is a widely-supported plain-text format.
+  - name: link becomes its words
+    markdown: See [Map embeds](block:4408) for the syntax.
+    plain: See Map embeds for the syntax.
+  - name: image becomes its alternative
+    markdown: "Logo: ![WikiLayer logo](/s/logo.png) above the fold."
+    plain: "Logo: WikiLayer logo above the fold."
+  - name: inline marks disappear
+    markdown: "**bold** *italic* ~~wrong~~ and `code` words."
+    plain: bold italic wrong and code words.
+  - name: blocks stand apart
+    markdown: |-
+      # Title
+
+      Body paragraph.
+
+      ## Sub
+
+      More body.
+    plain: Title Body paragraph. Sub More body.
+  - name: list items stand apart
+    markdown: |-
+      - one
+      - two
+      - three
+    plain: one two three
+  - name: quote lines join
+    markdown: |-
+      > A quoted line
+      > spanning two.
+    plain: A quoted line spanning two.
+  - name: callout marker is metadata
+    markdown: |-
+      > [!CAUTION]
+      > On the backend, every push to main is a prod deploy.
+    plain: On the backend, every push to main is a prod deploy.
+  - name: map keeps only its caption
+    markdown: |-
+      > [!MAP]
+      > 44.7866, 20.4489
+      > Belgrade, the **city centre**.
+    plain: Belgrade, the city centre.
+  - name: unreadable place stays out
+    markdown: |-
+      Before.
+
+      > [!MAP]
+      > 999, 20.4489
+      > Nowhere.
+
+      After.
+    plain: Before. After.
+  - name: fenced code remains searchable
+    markdown: |-
+      Run
+
+      ```bash
+      make test
+      ```
+
+      before push.
+    plain: Run make test before push.
+  - name: table cells stand apart
+    markdown: |-
+      | col | val |
+      |-----|-----|
+      | a   | one |
+      | b   | two |
+    plain: col val a one b two
+  - name: whitespace collapses
+    markdown: "a\n\n\nb   c\t\td"
+    plain: a b c d
+  - name: empty input stays empty
+    markdown: ""
+    plain: ""

@@ -1,3 +1,5 @@
+.DEFAULT_GOAL := build
+
 .PHONY: format lint comments test-build test build
 
 format:
@@ -18,5 +20,5 @@ test-build:
 test:
 	go test ./...
 
-build:
+build: lint test-build test
 	go build ./...

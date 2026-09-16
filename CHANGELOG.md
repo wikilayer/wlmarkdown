@@ -37,6 +37,16 @@ offers no way to switch linkifying on. That port's changelog carries the same no
 Changes are documented here in the format of
 [Keep a Changelog](https://keepachangelog.com/).
 
+## 0.7.0 - 2026-09-16
+
+### Added
+
+- `Strip(source)` turns markdown into reader-visible plain text for search,
+  previews and indexing. Formatting and callout markers disappear, map embeds keep
+  only their caption, unreadable maps disappear, and code remains searchable.
+- `corpus/plain_text.yaml` defines that behaviour for this package and its Swift
+  and Kotlin ports.
+
 ## 0.6.0 - 2026-09-13
 
 ### Added

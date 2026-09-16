@@ -126,10 +126,9 @@ each scheme, can hold its tables against these instead of keeping a second copy 
 nothing compares. Both lists grow in a minor version, so read them rather than
 writing down what is in them today.
 
-The version is 0.x because the shape is still settling. Two applications read this
-library and one port answers the same corpus in Swift, and each of the three has
-moved something in this API rather than working around it; until a release passes
-with none of them asking for anything, the shape is not settled.
+The version is 0.x because the shape is still settling: every release so far has
+moved something in this API because a caller needed it moved rather than worked
+around. Until one passes with nobody asking, the shape is not settled.
 
 ## Use
 
@@ -142,6 +141,16 @@ found := wlmarkdown.New().Recognise([]byte("> [!TIP]\n> Try the shorter form.\n"
 
 That list is what the corpus is written against, so every port of this library
 answers the same questions with the same words.
+
+`Strip(source)` turns a document into its reader-visible plain text for search,
+previews and indexing. Markdown punctuation and callout markers disappear, map
+embeds contribute only their caption, unreadable maps contribute nothing, and code
+stays searchable:
+
+```go
+plain := wlmarkdown.Strip([]byte("Read **this** before `make test`."))
+// plain is "Read this before make test."
+```
 
 To render, compose a goldmark of your own from the extenders and add a renderer for
 each of the dialect's node kinds, `KindCallout`, `KindMapEmbed` and `KindUnreadable`:
@@ -203,16 +212,17 @@ an optional sign, one or more digits, and optionally a point and one or more
 digits. Words come back with every run of blanks squeezed to one space and the ends
 trimmed, which is an outcome a port can check rather than an order of operations it
 has to copy. `corpus/dialect.yaml` holds the cases it is defined by, a piece of
-markdown and what must be recognised in it.
+markdown and what must be recognised in it. `corpus/plain_text.yaml` holds the
+portable answers for `Strip` and its `plainText` counterparts.
 
 One thing the cases cannot reach is bare-URL linking. A port has to switch it on
 all the same, because a page written against it renders differently without it, and
 no case will say so: the flat list a case is written against reports no autolink to
 compare.
 
-Both files are the dialect, and the code is an implementation of them. Go reads the
+All three files are the dialect, and the code is an implementation of them. Go reads the
 rules out of the file it embeds rather than repeating them, and every port reads the
-same two, which is what keeps them from drifting apart. A new marker or a new case
+same three, which is what keeps them from drifting apart. A new marker or a new case
 is added once and is then asked of all of them.
 
 ## Lines of Code
