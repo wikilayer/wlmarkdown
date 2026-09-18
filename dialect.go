@@ -15,6 +15,7 @@ import (
 //go:embed corpus/rules.yaml
 var writtenRules []byte
 
+// Dialect holds the rules and goldmark extensions of the WikiLayer dialect.
 type Dialect struct {
 	calloutClassByMarker map[string]string
 	mapMarker            string
@@ -58,6 +59,7 @@ func New() Dialect {
 	return read()
 }
 
+// Extensions returns the GFM and WikiLayer goldmark extensions in parse order.
 func (d Dialect) Extensions() []goldmark.Extender {
 	return []goldmark.Extender{
 		extension.GFM,
@@ -67,6 +69,7 @@ func (d Dialect) Extensions() []goldmark.Extender {
 	}
 }
 
+// Markers returns every marker that can open a dialect construct, in sorted order.
 func (d Dialect) Markers() []string {
 	markers := make([]string, 0, len(d.calloutClassByMarker)+1)
 	for marker := range d.calloutClassByMarker {
@@ -77,6 +80,7 @@ func (d Dialect) Markers() []string {
 	return slices.Compact(markers)
 }
 
+// Classes returns every callout class the dialect can report, in sorted order.
 func (d Dialect) Classes() []string {
 	classes := make([]string, 0, len(d.calloutClassByMarker))
 	for _, class := range d.calloutClassByMarker {
@@ -86,16 +90,19 @@ func (d Dialect) Classes() []string {
 	return slices.Compact(classes)
 }
 
+// Schemes returns every node-reference scheme the dialect can report, in sorted order.
 func (d Dialect) Schemes() []string {
 	schemes := slices.Clone(d.refSchemes)
 	slices.Sort(schemes)
 	return schemes
 }
 
+// Kinds returns every custom AST node kind built by the dialect.
 func Kinds() []ast.NodeKind {
 	return []ast.NodeKind{KindCallout, KindMapEmbed, KindUnreadable}
 }
 
+// Parser returns a goldmark parser configured with all dialect extensions.
 func (d Dialect) Parser() parser.Parser {
 	return goldmark.New(goldmark.WithExtensions(d.Extensions()...)).Parser()
 }

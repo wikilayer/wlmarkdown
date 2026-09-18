@@ -1,41 +1,22 @@
 # Changelog
 
-A Go package, `github.com/wikilayer/wlmarkdown`, built on
-[goldmark](https://github.com/yuin/goldmark). It recognises the markdown dialect of
-WikiLayer, a wiki whose pages are a tree of nodes: GitHub-flavoured markdown plus
-callouts, map embeds, and links naming a node instead of a URL.
+Notable changes to `wlmarkdown` are documented here in the format of
+[Keep a Changelog](https://keepachangelog.com/). This Go package leads the shared
+rules and corpora consumed by the Swift and Kotlin ports; matching major and minor
+versions promise agreement on those cases.
 
-```markdown
-> [!WARNING]
-> This cannot be undone.
+The package remains below 1.0 while its public API is settling. The README carries
+installation and usage examples, and pkg.go.dev carries signatures.
 
-Start at [the front page](page:home), or at [one paragraph](block:50386) of it.
-```
+## 0.7.1 - 2026-09-18
 
-It recognises and does nothing else. What title that callout wears, which icon and
-colour it gets, which address `page:home` resolves to: a web page answers each of
-those one way and a phone app another, so each belongs to the application holding
-the pages rather than to a parser.
+### Changed
 
-An entry names the call or the field it is about and no more; the
-[package reference](https://pkg.go.dev/github.com/wikilayer/wlmarkdown) carries the
-signatures, and the README an example of each, including what the two files under
-`corpus/` hold. Which versions of goldmark and of Go it is built against is in
-`go.mod`, where it cannot go stale. This file says only what changed between
-versions and what that asks of you.
-
-The version is 0.x because the shape is still settling: every application built on
-this library so far has asked for something in the API rather than working around
-its absence, so a minor may still change an answer you relied on. Read the entry
-before taking one.
-
-[The Swift port](https://github.com/wikilayer/wlmarkdown-swift) answers the same
-corpus, and the two agree on all of it. One difference lies outside what the corpus
-can ask: a bare URL is a link here and plain words there, because swift-markdown
-offers no way to switch linkifying on. That port's changelog carries the same note.
-
-Changes are documented here in the format of
-[Keep a Changelog](https://keepachangelog.com/).
+- Documented the complete public API and clarified the package boundary, setup,
+  corpus relationship, and goldmark-specific rendering contract. Runtime behavior
+  is unchanged.
+- Added the MIT license, updated commentcensor, and moved release publication from
+  the Makefile into a repository workflow.
 
 ## 0.7.0 - 2026-09-16
 

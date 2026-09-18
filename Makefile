@@ -1,11 +1,11 @@
 .DEFAULT_GOAL := build
 
 STATICCHECK_VERSION ?= v0.8.0
-COMMENTCENSOR_VERSION ?= v0.3.1
+COMMENTCENSOR_VERSION ?= v0.3.2
 COMMENTCENSOR_ENV = .build/commentcensor
 COMMENTCENSOR = $(COMMENTCENSOR_ENV)/bin/commentcensor
 
-.PHONY: install-tools format lint comments test-build test build release
+.PHONY: install-tools format lint comments test-build test build
 
 install-tools:
 	go install honnef.co/go/tools/cmd/staticcheck@$(STATICCHECK_VERSION)
@@ -16,7 +16,7 @@ format:
 	gofmt -w .
 
 comments:
-	$(COMMENTCENSOR) .
+	$(COMMENTCENSOR) *.go
 
 lint: comments
 	go vet ./...
@@ -32,7 +32,3 @@ test:
 
 build: lint test-build test
 	go build ./...
-
-release: build
-	@test -n "$(VERSION)" || (echo "usage: make release VERSION=0.7.0" && exit 1)
-	gh release create "v$(VERSION)" --title "v$(VERSION)" --generate-notes --target main

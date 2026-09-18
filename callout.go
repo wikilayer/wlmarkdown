@@ -10,17 +10,22 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
+// KindCallout identifies a transformed callout node.
 var KindCallout = ast.NewNodeKind("wlmarkdown.Callout")
 
 const calloutPriority = 100
 
+// Callout is a blockquote transformed from a recognised callout marker. Class is
+// the value assigned to that marker by the bundled rules.
 type Callout struct {
 	ast.BaseBlock
 	Class string
 }
 
+// Kind returns KindCallout.
 func (n *Callout) Kind() ast.NodeKind { return KindCallout }
 
+// Dump writes the node in goldmark's diagnostic tree format.
 func (n *Callout) Dump(source []byte, level int) {
 	ast.DumpHelper(n, source, level, map[string]string{"Class": n.Class}, nil)
 }

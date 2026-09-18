@@ -10,12 +10,15 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
+// Declined records a dialect marker from a quote left unchanged. Marker keeps the
+// spelling used by the dialect.
 type Declined struct {
 	Marker string
 }
 
 var declinedKey = parser.NewContextKey()
 
+// DeclinedIn returns marked quotes the dialect declined during a parse.
 func DeclinedIn(pc parser.Context) []Declined {
 	held, ok := pc.Get(declinedKey).([]Declined)
 	if !ok {

@@ -3,157 +3,60 @@
 [![Tests](https://github.com/wikilayer/wlmarkdown/actions/workflows/tests.yml/badge.svg)](https://github.com/wikilayer/wlmarkdown/actions/workflows/tests.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/wikilayer/wlmarkdown.svg)](https://pkg.go.dev/github.com/wikilayer/wlmarkdown)
 
-The WikiLayer markdown dialect: GitHub-flavoured markdown, meaning CommonMark plus
-tables, strikethrough, task lists and bare-URL linking, and then the constructs the
-dialect adds of its own.
+The leading implementation of the WikiLayer markdown dialect. It adds callouts,
+map embeds, and `page:` and `block:` links to goldmark's GitHub-flavoured Markdown.
+The Swift and Kotlin ports consume the same rules and test corpora.
 
-Today those are callouts and map embeds. A blockquote whose first line is exactly a
-marker becomes a callout of that class:
+Install the package:
 
-```markdown
-> [!WARNING]
-> This cannot be undone.
+```sh
+go get github.com/wikilayer/wlmarkdown@v0.7.1
 ```
 
-| marker | class |
-|---|---|
-| `[!NOTE]` | `note` |
-| `[!TIP]` | `tip` |
-| `[!IMPORTANT]` | `important` |
-| `[!WARNING]` | `warning` |
-| `[!CAUTION]` | `caution` |
+Recognise structured constructs or extract reader-visible text:
 
-Anything else — a marker sharing its line with words, a marker nobody declared, a
-quote without one — stays an ordinary quote.
-
-A `[!MAP]` marker followed by a line of two numbers becomes a map embed. Whatever
-follows the coordinates is its caption:
-
-```markdown
-> [!MAP]
-> 44.7866, 20.4489
-> Belgrade, the city centre
+```go
+dialect := wlmarkdown.New()
+found := dialect.Recognise([]byte("> [!TIP]\n> Try the shorter form.\n"))
+plain := wlmarkdown.Strip([]byte("Read **this** before `make test`."))
 ```
 
-Both are digits carrying an optional sign and an optional fraction, and nothing
-else: no exponent, no hexadecimal, no infinity. Anything else leaves the quote a
-quote. They are handed on as the source wrote them, digit for digit, because
-rounding a coordinate moves the point.
+`Recognise` returns a flat list in document order. Each `Found` describes a
+callout, map, unreadable map, or link. `Strip` removes markdown syntax for search,
+previews, and indexing while keeping code searchable.
 
-A latitude may go as far as 90 and a longitude as far as 180, the poles and the
-meridian included. Past that the pair is still read — it is digits, and the dialect
-read them — but there is nowhere to put it, so the quote becomes an `Unreadable`
-block carrying the words as they were written rather than a map of a place the page
-does not name. Only the person who typed those coordinates can fix them, which is
-the whole reason the words come back instead of vanishing.
+## What it recognises
 
-A link may name a node instead of a URL, under the scheme `page:` or `block:`:
+A blockquote whose first line is exactly `[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`,
+`[!WARNING]`, or `[!CAUTION]` is a callout. A marker sharing its line with words or
+written in another case leaves an ordinary quote.
 
-```markdown
-Read [the libraries page](page:42685) first.
-```
+A `[!MAP]` marker followed by a line of two numbers is a map embed. The remaining
+lines of that paragraph are its caption. Coordinates contain digits with an
+optional sign and fraction; their spelling is preserved. A latitude may go as far
+as 90 and a longitude as far as 180. A pair outside those bounds becomes an
+`Unreadable` node carrying the words the author wrote.
 
-The dialect names the scheme it recognises and hands the destination on character
-for character. What follows a scheme is as often a name as a number, `page:home`
-beside `page:42685`, and which names exist is a question a store answers, along with
-whether anything is there at all and what URL it turns into.
+A written link may name a node under the `page:` or `block:` scheme. The dialect
+reports the destination but does not resolve it against a store. Bare URLs are
+linkified by GFM but, like angle-bracket autolinks, are omitted from `Found`.
 
-A destination under no scheme of ours is reported with none. Whether it leads out of
-the site or back into it is not the parser's to say either: `/wiki/page` is a local
-address to whoever serves it and an unknown one here.
-
-## Limitations
-
-A callout inside a callout is one callout. The transformer stops at the first marker
-it matches and looks no further down that quote, so the inner marker stays part of
-the outer body. That holds however the inner one is written, but the two shapes
-leave different trees: a second marker further down the same quote is words and
-nothing else, while a quote nested inside the quote keeps its own blockquote,
-standing and unclaimed.
-
-A map inside a callout is found, because the callout is made first and the map is
-looked for inside it afterwards. That order is a stated priority rather than an
-accident of registration, and a corpus case goes red if it inverts. A link is found
-wherever it sits, a callout included.
-
-An autolink is not reported either. `<https://example.com/page>` stays whatever
-CommonMark makes of it, and only a link written with brackets and a destination
-comes back from `Recognise`.
-
-Markdown is split on nesting callouts. GitHub, whose alert spelling this dialect
-borrows, states that "alerts cannot be nested within other elements". Obsidian says
-"you can nest callouts in multiple levels" and gives an example three deep, and
-Material for MkDocs nests admonitions by indentation. Where the two disagree, this
-dialect is neither a fresh choice nor a reading of that argument: it reproduces what
-pages already written rely on.
-
-## What this library does and does not do
-
-It **recognises**. `New().Extensions()` hands over the goldmark extenders that parse
-the dialect, and each node carries the one thing the source says: a callout its
-class, a map its point.
-
-It does not render, translate or resolve. A title for the callout, an icon, a
-colour, a link target looked up in a store — all of that belongs to whoever holds
-the page, because each of them answers differently on a web page and in an app.
-
-Which markers exist is not among the things a caller sets. That table is what makes
-the dialect this one rather than another, so `New()` is the only dialect there is.
-
-`Markers()` names every marker that opens a construct here, the five callout
-markers and `[!MAP]`, spelled the way a document spells them.
-
-When the dialect turns a quote down it leaves it a quote and says nothing: a map
-whose second line is missing or does not read as a pair of coordinates, or a
-callout written as a quote inside another callout's quote. `DeclinedIn` hands those
-back, one entry per quote with the marker it carried, so a host can write it to a
-log or show it to whoever wrote the page. Pass the context you parsed with:
+Read `Markers`, `Classes`, and `Schemes` instead of copying their current values
+into an application. `DeclinedIn` reports marked quotes the dialect left unchanged
+when the parse uses a `parser.Context`:
 
 ```go
 pc := parser.NewContext()
-md.Parser().Parse(text.NewReader(source), parser.WithContext(pc))
-for _, declined := range wlmarkdown.DeclinedIn(pc) {
-    log.Printf("%s was written, and nothing came of it", declined.Marker)
-}
+p := wlmarkdown.New().Parser()
+p.Parse(text.NewReader(source), parser.WithContext(pc))
+declined := wlmarkdown.DeclinedIn(pc)
 ```
 
-Deciding that from outside would mean writing the dialect's own rule for what
-opens a construct a second time, in your code, where the two would drift.
+## Rendering with goldmark
 
-`Classes()` and `Schemes()` name the values that can come back in `Found.Class` and
-`Found.Scheme`, in sorted order. A host drawing an icon for each class, or resolving
-each scheme, can hold its tables against these instead of keeping a second copy that
-nothing compares. Both lists grow in a minor version, so read them rather than
-writing down what is in them today.
-
-The version is 0.x because the shape is still settling: every release so far has
-moved something in this API because a caller needed it moved rather than worked
-around. Until one passes with nobody asking, the shape is not settled.
-
-## Use
-
-`New().Recognise(source)` returns the flat list of dialect constructs found, in
-document order:
-
-```go
-found := wlmarkdown.New().Recognise([]byte("> [!TIP]\n> Try the shorter form.\n"))
-```
-
-That list is what the corpus is written against, so every port of this library
-answers the same questions with the same words.
-
-`Strip(source)` turns a document into its reader-visible plain text for search,
-previews and indexing. Markdown punctuation and callout markers disappear, map
-embeds contribute only their caption, unreadable maps contribute nothing, and code
-stays searchable:
-
-```go
-plain := wlmarkdown.Strip([]byte("Read **this** before `make test`."))
-// plain is "Read this before make test."
-```
-
-To render, compose a goldmark of your own from the extenders and add a renderer for
-each of the dialect's node kinds, `KindCallout`, `KindMapEmbed` and `KindUnreadable`:
+The library recognises constructs but does not render, decorate, or resolve them.
+Build a goldmark instance from its extensions and register a renderer for every
+kind returned by `Kinds`:
 
 ```go
 md := goldmark.New(
@@ -166,69 +69,48 @@ md := goldmark.New(
 )
 ```
 
-All three are yours to write, and a goldmark without them does not fail politely:
-`Convert` panics with an index out of range the first time it meets a node nobody
-registered a renderer for.
+A goldmark converter without those renderers panics when it reaches a custom node.
+An application may instead replace the nodes in its own AST transformer. Every
+transformer in this package runs below priority 200, so a transformer registered at
+200 or above sees all dialect nodes.
 
-`Unreadable` is what a map whose point is nowhere on Earth comes back as, and it
-holds the words the quote was written with. Nothing on the node needs reading:
-render a wrapper that says these words could not be read and let the children
-render inside it. The only person who can fix such coordinates is the one who
-typed them, so they have to see them.
+## Nesting
 
-The nodes are yours to replace as well. A host that hangs a localized title on a
-callout, or an embed URL on a map, does that in an AST transformer of its own, and
-that transformer has to meet the node after the dialect has built it. Every
-transformer this library registers runs below priority 200, so one registered at
-200 or above runs after all of them:
-
-```go
-goldmark.WithParserOptions(parser.WithASTTransformers(
-    util.Prioritized(yourCalloutDecoration{}, 200),
-))
-```
-
-That bound is what the library promises, and a test here holds it. Read it from
-this line rather than from the numbers in the source, which are free to move under
-it.
-
-## Running it
-
-```sh
-make test    # the corpus, plus the wiring test
-make lint    # go vet, gofmt, staticcheck, commentcensor
-```
+A callout inside another callout remains part of the outer callout. A map directly
+inside a callout is still recognised, and links inside callouts are reported. These
+priorities are part of the shared corpus rather than renderer policy.
 
 ## The corpus
 
-`corpus/rules.yaml` holds what the dialect knows: which markers name which class,
-which marker opens a map, which characters a coordinate is written from, which
-characters count as blank, and which schemes a link may be written under.
+`corpus/rules.yaml` defines the dialect's markers, coordinate alphabet, blanks, and
+link schemes. `corpus/dialect.yaml` defines structured recognition, and
+`corpus/plain_text.yaml` defines `Strip` and the ports' plain-text functions. New
+rules and cases are added here first; every port runs copies of all three.
 
-The alphabets are spelled out rather than named, because a name is where ports
-drift: `isDigit` in Kotlin admits Devanagari digits, `IsSpace` in Go admits the
-non-breaking space and `Character.isWhitespace` in Java does not. A coordinate is
-an optional sign, one or more digits, and optionally a point and one or more
-digits. Words come back with every run of blanks squeezed to one space and the ends
-trimmed, which is an outcome a port can check rather than an order of operations it
-has to copy. `corpus/dialect.yaml` holds the cases it is defined by, a piece of
-markdown and what must be recognised in it. `corpus/plain_text.yaml` holds the
-portable answers for `Strip` and its `plainText` counterparts.
+Bare-URL linking lies outside what the flat corpus can observe. Goldmark and the
+Kotlin port enable it; swift-markdown offers no equivalent option.
 
-One thing the cases cannot reach is bare-URL linking. A port has to switch it on
-all the same, because a page written against it renders differently without it, and
-no case will say so: the flat list a case is written against reports no autolink to
-compare.
+## Documentation
 
-All three files are the dialect, and the code is an implementation of them. Go reads the
-rules out of the file it embeds rather than repeating them, and every port reads the
-same three, which is what keeps them from drifting apart. A new marker or a new case
-is added once and is then asked of all of them.
+The public API is published in the [Go Reference](https://pkg.go.dev/github.com/wikilayer/wlmarkdown).
+
+## Development
+
+```sh
+make test-build  # compile the package and tests
+make test        # run the shared corpus and wiring tests
+make lint        # commentcensor, go vet, gofmt, and staticcheck
+make build       # all checks and the package build
+```
+
+Releases are published by the repository's
+[Release workflow](https://github.com/wikilayer/wlmarkdown/actions/workflows/release.yml),
+after it repeats the complete build.
 
 ## Lines of Code
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset=".github/loc-history-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset=".github/loc-history-light.svg">
-  <img alt="Lines of Code graph" src=".github/loc-history-light.svg">
+  <img alt="Lines of code over time" src=".github/loc-history.svg">
 </picture>

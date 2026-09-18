@@ -11,10 +11,13 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
+// KindMapEmbed identifies a transformed map embed node.
 var KindMapEmbed = ast.NewNodeKind("wlmarkdown.MapEmbed")
 
 const mapEmbedPriority = calloutPriority + 10
 
+// MapEmbed is a blockquote transformed from a valid map marker and point. Lat and
+// Lng preserve the coordinate spelling, and Caption preserves its markdown.
 type MapEmbed struct {
 	ast.BaseBlock
 	Lat     string
@@ -22,8 +25,10 @@ type MapEmbed struct {
 	Caption string
 }
 
+// Kind returns KindMapEmbed.
 func (n *MapEmbed) Kind() ast.NodeKind { return KindMapEmbed }
 
+// Dump writes the node in goldmark's diagnostic tree format.
 func (n *MapEmbed) Dump(source []byte, level int) {
 	ast.DumpHelper(n, source, level, map[string]string{
 		"Lat":     n.Lat,

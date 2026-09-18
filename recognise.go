@@ -7,6 +7,9 @@ import (
 	"github.com/yuin/goldmark/text"
 )
 
+// Found is one dialect construct found in a document. Kind selects the meaningful
+// fields: Class and Text for callout, Lat, Lng, and Caption for map, Text for
+// unreadable, or Scheme, Destination, and Text for link.
 type Found struct {
 	Kind        string `yaml:"kind"`
 	Class       string `yaml:"class,omitempty"`
@@ -18,6 +21,7 @@ type Found struct {
 	Text        string `yaml:"text,omitempty"`
 }
 
+// Recognise returns dialect constructs in document order.
 func (d Dialect) Recognise(source []byte) []Found {
 	reader := text.NewReader(source)
 	doc := d.Parser().Parse(reader)
