@@ -23,9 +23,8 @@ installation and usage examples, and pkg.go.dev carries signatures.
 ### Changed
 
 - `Strip` answers every case in the corpus as it did and no longer parses a source
-  that says nothing in markdown. Measured through the Android port, whose copy of
-  this dialect reads the same way: the hundred and twenty-six titles of one wiki's
-  page tree cost 350ms of parsing on a device, and now cost none.
+  that says nothing in markdown. A caller stripping many short strings, most of
+  which carry no markup, now reaches the parser only for the ones that do.
 
 ## 0.7.1 - 2026-09-18
 

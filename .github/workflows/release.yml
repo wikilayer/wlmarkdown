@@ -29,8 +29,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ inputs.version }}
         run: |
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "releases must be dispatched from main" >&2
+            exit 1
+          fi
           if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "version must look like 0.7.1" >&2
             exit 1
           fi
-          gh release create "v$VERSION" --target "$GITHUB_SHA" --title "v$VERSION" --generate-notes
+          CHANGELOG_VERSION="$(sed -n 's/^## \([0-9][0-9.]*\).*$/\1/p' CHANGELOG.md | head -1)"
+          if [[ "$VERSION" != "$CHANGELOG_VERSION" ]]; then
+            echo "version must match the latest CHANGELOG entry: $CHANGELOG_VERSION" >&2
+            exit 1
+          fi
+          NOTES="$(sed -n "/^## ${VERSION} /,/^## /p" CHANGELOG.md | sed '1d;$d')"
+          gh release create "v$VERSION" --target "$GITHUB_SHA" --title "v$VERSION" --notes "$NOTES"
