@@ -16,6 +16,11 @@ coordinate:
 
 blanks: " \t\n\v\f\r"
 
+# Everything that can open a construct wherever it stands. A source carrying none
+# of these, and not opening on a digit, which would number a list, says nothing in
+# markdown that it does not already say in words: it is its own plain text.
+marks: "*_[]`\\<>&~!|#=+-"
+
 ref_schemes:
   - page
   - block

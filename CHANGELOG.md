@@ -8,6 +8,25 @@ versions promise agreement on those cases.
 The package remains below 1.0 while its public API is settling. The README carries
 installation and usage examples, and pkg.go.dev carries signatures.
 
+## 0.8.0 - 2026-09-22
+
+### Added
+
+- `corpus/rules.yaml` gained `marks`, the characters that can open a construct
+  wherever they stand. A source carrying none of them, and not opening on a digit,
+  says nothing in markdown that it does not already say in words. A port reading
+  the rules with a decoder that refuses unknown keys has to learn this one.
+- `corpus/plain_text.yaml` gained the cases that hold the rule honest: a numbered
+  or dashed line is still a list, an indented block is still code, a setext
+  underline is still a heading, and a digit inside a sentence numbers nothing.
+
+### Changed
+
+- `Strip` answers every case in the corpus as it did and no longer parses a source
+  that says nothing in markdown. Measured through the Android port, whose copy of
+  this dialect reads the same way: the hundred and twenty-six titles of one wiki's
+  page tree cost 350ms of parsing on a device, and now cost none.
+
 ## 0.7.1 - 2026-09-18
 
 ### Changed

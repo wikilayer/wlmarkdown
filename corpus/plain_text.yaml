@@ -76,3 +76,32 @@ cases:
   - name: empty input stays empty
     markdown: ""
     plain: ""
+  - name: words that say nothing in markdown come back as words
+    markdown: "  Ferries and their fares  "
+    plain: Ferries and their fares
+  - name: a numbered line is a list, first digit and all
+    markdown: "1. Ferries"
+    plain: Ferries
+  - name: a numbered line indented is still a list
+    markdown: "   2) Fares"
+    plain: Fares
+  - name: a dash opens a list wherever the line starts
+    markdown: "- Ferries"
+    plain: Ferries
+  - name: a digit inside a sentence numbers nothing
+    markdown: Ferries run 4 times a day.
+    plain: Ferries run 4 times a day.
+  - name: a setext heading is its words, not its underline
+    markdown: |-
+      Ferries
+      =======
+    plain: Ferries
+  - name: a line of ordinary punctuation is not markdown
+    markdown: "Fares, times: what a reader asks (usually)."
+    plain: "Fares, times: what a reader asks (usually)."
+  - name: an indented block is code and reads as its lines
+    markdown: "    Ferries\n    and fares"
+    plain: Ferries and fares
+  - name: blanks alone say nothing
+    markdown: "   \t  "
+    plain: ""

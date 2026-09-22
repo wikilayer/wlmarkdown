@@ -21,6 +21,7 @@ type Dialect struct {
 	mapMarker            string
 	coordinate           coordinate
 	blanks               string
+	marks                string
 	refSchemes           []string
 }
 
@@ -37,6 +38,7 @@ type rules struct {
 	MapMarker            string            `yaml:"map_marker"`
 	Coordinate           coordinate        `yaml:"coordinate"`
 	Blanks               string            `yaml:"blanks"`
+	Marks                string            `yaml:"marks"`
 	RefSchemes           []string          `yaml:"ref_schemes"`
 }
 
@@ -50,6 +52,7 @@ var read = sync.OnceValue(func() Dialect {
 		mapMarker:            held.MapMarker,
 		coordinate:           held.Coordinate,
 		blanks:               held.Blanks,
+		marks:                held.Marks,
 		refSchemes:           held.RefSchemes,
 	}
 })

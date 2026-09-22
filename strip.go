@@ -11,6 +11,9 @@ import (
 // omitting unreadable map embeds and collapsing markdown structure to spaces.
 func Strip(source []byte) string {
 	dialect := New()
+	if !dialect.saysSomethingInMarkdown(source) {
+		return dialect.squeezed(string(source))
+	}
 	doc := dialect.Parser().Parse(text.NewReader(source))
 
 	var written strings.Builder
@@ -41,6 +44,19 @@ func Strip(source []byte) string {
 		return ast.WalkContinue
 	})
 	return dialect.squeezed(written.String())
+}
+
+func (d Dialect) saysSomethingInMarkdown(source []byte) bool {
+	return d.carriesAMark(source) || d.opensOnADigit(source)
+}
+
+func (d Dialect) carriesAMark(source []byte) bool {
+	return strings.ContainsAny(string(source), d.marks)
+}
+
+func (d Dialect) opensOnADigit(source []byte) bool {
+	opening := strings.TrimLeft(string(source), d.blanks)
+	return opening != "" && strings.ContainsRune(d.coordinate.Digits, rune(opening[0]))
 }
 
 func writeLines(into *strings.Builder, lines *text.Segments, source []byte) {
