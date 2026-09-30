@@ -2,7 +2,13 @@
 
 STATICCHECK_VERSION ?= v0.8.1
 
-.PHONY: install-tools format lint comments test-build test build
+.PHONY: install-tools format lint comments test-build test build sync-corpus
+
+sync-corpus:
+	cp corpus/rules.yaml ../wlmarkdown-swift/Sources/WLMarkdown/Resources/
+	cp corpus/dialect.yaml corpus/plain_text.yaml ../wlmarkdown-swift/Tests/WLMarkdownTests/Resources/
+	cp corpus/rules.yaml ../wlmarkdown-kotlin/src/main/resources/
+	cp corpus/dialect.yaml corpus/plain_text.yaml ../wlmarkdown-kotlin/src/test/resources/
 
 install-tools:
 	go install honnef.co/go/tools/cmd/staticcheck@$(STATICCHECK_VERSION)
