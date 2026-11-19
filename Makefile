@@ -2,6 +2,8 @@
 
 STATICCHECK_VERSION ?= v0.8.1
 
+CI_GO := go$(shell awk '/^go /{print $$2}' go.mod)
+
 .PHONY: install-tools format lint comments test-build test build sync-corpus
 
 sync-corpus:
@@ -11,7 +13,7 @@ sync-corpus:
 	cp corpus/dialect.yaml corpus/plain_text.yaml ../wlmarkdown-kotlin/src/test/resources/
 
 install-tools:
-	go install honnef.co/go/tools/cmd/staticcheck@$(STATICCHECK_VERSION)
+	GOTOOLCHAIN=$(CI_GO) go install honnef.co/go/tools/cmd/staticcheck@$(STATICCHECK_VERSION)
 	python3 -m pip install --quiet --upgrade git+https://github.com/botforge-pro/commentcensor.git
 
 format:
@@ -23,7 +25,7 @@ comments:
 lint: comments
 	go vet ./...
 	gofmt -l . | (! grep .)
-	staticcheck ./...
+	GOTOOLCHAIN=$(CI_GO) staticcheck ./...
 
 test-build:
 	go build ./...
